@@ -20,7 +20,7 @@ from easydict import EasyDict
 from generator import *
 from load_data import *
 from tps import *
-from transformers import DeformableDetrForObjectDetection
+# from transformers import DeformableDetrForObjectDetection
 
 import torch
 import torch.nn as nn
@@ -80,8 +80,8 @@ class PatchTrainer(object):
         elif args.arch == "detr":
             self.model = torch.hub.load('facebookresearch/detr:main', 'detr_resnet50', pretrained=True).eval().to(
                 device)
-        elif args.arch == "deformable-detr":
-            self.model = DeformableDetrForObjectDetection.from_pretrained("SenseTime/deformable-detr").eval().to(device)
+        # elif args.arch == "deformable-detr":
+            # self.model = DeformableDetrForObjectDetection.from_pretrained("SenseTime/deformable-detr").eval().to(device)
         elif args.arch == "yolov2":
             self.model = Darknet('yolo2/cfg/yolov2.cfg').eval().to(device)
             self.model.load_weights('yolo2/yolov2.weights')
@@ -145,7 +145,7 @@ class PatchTrainer(object):
         self.tshirt_point = torch.rand([num_colors, args.num_points_tshirt, 3], requires_grad=True, device=device)
         self.trouser_point = torch.rand([num_colors, args.num_points_trouser, 3], requires_grad=True, device=device)
         self.colors = torch.load("data/camouflage4.pth").float().to(device)
-        self.mesh_man = load_objs_as_meshes([obj_filename_man], device=device)
+        self.mesh_man = load_objs_as_meshes([obj_filename_man], device=device) # Returns new Meshes object
         self.mesh_tshirt = load_objs_as_meshes([obj_filename_tshirt], device=device)
         self.mesh_trouser = load_objs_as_meshes([obj_filename_trouser], device=device)
 
@@ -340,10 +340,10 @@ class PatchTrainer(object):
 
     def update_mesh(self, tau=0.3, type='gumbel'):
         # camouflage:
-        prob_map = prob_fix_color(self.tshirt_point, self.coordinates, self.colors, self.h, self.w, blur=self.args.blur).unsqueeze(0)
-        prob_trouser = prob_fix_color(self.trouser_point, self.coordinates_t, self.colors, self.h_t, self.w_t, blur=self.args.blur).unsqueeze(0)
-        prob_map = self.camouflage_kernel(prob_map)
-        prob_trouser = self.camouflage_kernel(prob_trouser)
+        prob_map = prob_fix_color(self.tshirt_point, self.coordinates, self.colors, self.h, self.w, blur=self.args.blur).unsqueeze(0) # For TSHIRT
+        prob_trouser = prob_fix_color(self.trouser_point, self.coordinates_t, self.colors, self.h_t, self.w_t, blur=self.args.blur).unsqueeze(0) # For TROUSER
+        prob_map = self.camouflage_kernel(prob_map) # kernel is Conv2DTranspose
+        prob_trouser = self.camouflage_kernel(prob_trouser) # kernel is Conv2DTranspose
         prob_map = prob_map.squeeze(0).permute(1, 2, 0)
         prob_trouser = prob_trouser.squeeze(0).permute(1, 2, 0)
 
@@ -417,7 +417,7 @@ class PatchTrainer(object):
             ep_tv_loss = 0
             ep_ctrl_loss = 0
             ep_seed_loss = 0
-            ep_log_likelihood = 0
+            # ep_log_likelihood = 0
             eff_count = 0  # record how many images in this epoch are really in training so that we can calculate accurate loss
             self.sampler_probs = self.loss_history / self.num_history
             if epoch % 100 == 0:
