@@ -732,7 +732,7 @@ class PatchTrainer(object):
 if __name__ == '__main__':
     print('Version 2.0')
     parser = argparse.ArgumentParser(description='PyTorch Training')
-    parser.add_argument('--device', default='cuda:1', help='')
+    parser.add_argument('--device', default='cuda', help='')
     parser.add_argument('--lr', type=float, default=0.001, help='')
     parser.add_argument('--lr_seed', type=float, default=0.01, help='')
     parser.add_argument('--nepoch', type=int, default=600, help='')
