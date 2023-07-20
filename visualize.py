@@ -8,7 +8,7 @@ suffix = '/599test_results_tps_iou01_person'
 names = [
     'rcnn_sr07',
     'deformable_detr_07',
-    'yolov3_sr07',
+    'yolov3_07',
 ]
 
 others = [
