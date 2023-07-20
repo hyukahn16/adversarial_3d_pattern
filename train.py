@@ -626,6 +626,11 @@ class PatchTrainer(object):
                     self.sample_cameras(theta=theta)
                     p_img_batch, gt = self.synthesis_image(img_batch, use_tps2d, use_tps3d)
 
+                    # Save testing images for future 
+                    # for i in range(p_img_batch.size(0)):
+                    #     print("Saving image")
+                    #     torchvision.utils.save_image(p_img_batch[i, :, :, :], './test_images/{}.png'.format(i))
+
                     normalize = True
                     if self.args.arch == "deformable-detr" and normalize:
                         normalize = transforms.Normalize([0.485, 0.456, 0.406],[0.229, 0.224, 0.225])
