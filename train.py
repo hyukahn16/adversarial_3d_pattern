@@ -403,7 +403,7 @@ class PatchTrainer(object):
         Optimize a patch to generate an adversarial example.
         :return: Nothing
         """
-        self.writer = self.init_tensorboard()
+        # self.writer = self.init_tensorboard()
         args = self.args
 
         et0 = time.time()
@@ -412,7 +412,6 @@ class PatchTrainer(object):
             self.load_weights(args.save_path, checkpoints - 1)
 
         for epoch in tqdm(range(checkpoints, args.nepoch)):
-            print('######################################')
             ep_det_loss = 0
             ep_loss = 0
             ep_mean_prob = 0
@@ -515,13 +514,13 @@ class PatchTrainer(object):
                 self.colors.data = self.colors.data.clamp(0, 1)
                 self.trouser_point.data = self.trouser_point.data.clamp(0, 1)
 
-                if i_batch % 10 == 0:
-                    iteration = self.epoch_length * epoch + i_batch
-                    self.writer.add_scalar('batch/total_loss', loss.detach().cpu().numpy(), iteration)
-                    self.writer.add_scalar('batch/tv_loss', tv_loss.detach().cpu().numpy(), iteration)
-                    self.writer.add_scalar('batch/det_loss', det_loss.detach().cpu().numpy(), iteration)
-                    self.writer.add_scalar('batch/ctrl_loss', loss_c.detach().cpu().numpy(), iteration)
-                    self.writer.add_scalar('batch/loss_seed', loss_seed.detach().cpu().numpy(), iteration)
+                # if i_batch % 10 == 0:
+                #     iteration = self.epoch_length * epoch + i_batch
+                #     self.writer.add_scalar('batch/total_loss', loss.detach().cpu().numpy(), iteration)
+                #     self.writer.add_scalar('batch/tv_loss', tv_loss.detach().cpu().numpy(), iteration)
+                #     self.writer.add_scalar('batch/det_loss', det_loss.detach().cpu().numpy(), iteration)
+                #     self.writer.add_scalar('batch/ctrl_loss', loss_c.detach().cpu().numpy(), iteration)
+                #     self.writer.add_scalar('batch/loss_seed', loss_seed.detach().cpu().numpy(), iteration)
 
             et1 = time.time()
             ep_det_loss = ep_det_loss / eff_count
@@ -539,27 +538,29 @@ class PatchTrainer(object):
                 print(' CTRL LOSS: ', ep_ctrl_loss)
                 print(' SEED LOSS: ', ep_seed_loss)
                 print('EPOCH TIME: ', et1 - et0)
+                print('LEARNING RATE', self.optimizer.param_groups[0]['lr'])
+                print("\n\n")
 
-                self.writer.add_scalar('epoch/total_loss', ep_loss, epoch)
-                self.writer.add_scalar('epoch/tv_loss', ep_tv_loss, epoch)
-                self.writer.add_scalar('epoch/det_loss', ep_det_loss, epoch)
-                self.writer.add_scalar('epoch/ctrl_loss', ep_ctrl_loss, epoch)
-                self.writer.add_scalar('epoch/seed_loss', ep_seed_loss, epoch)
-                self.writer.add_scalar('epoch/lr', self.optimizer.param_groups[0]['lr'], epoch)
+                # self.writer.add_scalar('epoch/total_loss', ep_loss, epoch)
+                # self.writer.add_scalar('epoch/tv_loss', ep_tv_loss, epoch)
+                # self.writer.add_scalar('epoch/det_loss', ep_det_loss, epoch)
+                # self.writer.add_scalar('epoch/ctrl_loss', ep_ctrl_loss, epoch)
+                # self.writer.add_scalar('epoch/seed_loss', ep_seed_loss, epoch)
+                # self.writer.add_scalar('epoch/lr', self.optimizer.param_groups[0]['lr'], epoch)
             et0 = time.time()
 
-            if (epoch + 1) % 100 == 0 or epoch == 0:
-                fig = plt.figure()
-                plt.imshow(tex[0].detach().cpu().numpy())
-                plt.axis('off')
-                self.writer.add_figure('maps_tshirt', fig, epoch)
+            # if (epoch + 1) % 100 == 0 or epoch == 0:
+            #     fig = plt.figure()
+            #     plt.imshow(tex[0].detach().cpu().numpy())
+            #     plt.axis('off')
+            #     self.writer.add_figure('maps_tshirt', fig, epoch)
 
-                fig = plt.figure()
-                plt.imshow(tex_trouser[0].detach().cpu().numpy())
-                plt.axis('off')
-                self.writer.add_figure('maps_trouser', fig, epoch)
+            #     fig = plt.figure()
+            #     plt.imshow(tex_trouser[0].detach().cpu().numpy())
+            #     plt.axis('off')
+            #     self.writer.add_figure('maps_trouser', fig, epoch)
 
-            if (epoch + 1) % 50 == 0:
+            if (epoch + 1) % 1 == 0:
                 if not os.path.exists(args.save_path):
                     os.makedirs(args.save_path)
                 path = args.save_path + '/' + str(epoch) + '_circle_epoch.pth'
