@@ -750,7 +750,7 @@ if __name__ == '__main__':
     parser.add_argument("--ctrl", type=float, default=1, help='')
     parser.add_argument("--num_points_tshirt", type=int, default=60, help='')
     parser.add_argument("--num_points_trouser", type=int, default=60, help='')
-    parser.add_argument("--arch", type=str, default="yolov2")
+    parser.add_argument("--arch", type=str, default="yolov3")
     parser.add_argument("--cdist", type=float, default=0, help='')
     parser.add_argument("--seed_type", default='fixed', help='fixed, random, variable, langevin')
     parser.add_argument("--rd_num", type=int, default=200, help='')
