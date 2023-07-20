@@ -2,7 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-prefix = 'results/'
+prefix = 'results_paper/'
 suffix = '/599test_results_tps_iou01_person'
 
 names = [
