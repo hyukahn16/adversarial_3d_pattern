@@ -114,8 +114,10 @@ class PatchTrainer(object):
         self.loss_history = torch.ones(36).to(device)
         self.num_history = torch.ones(36).to(device)
 
-        self.train_loader = self.get_loader('./data/background', True)
-        self.test_loader = self.get_loader('./data/background_test', True)
+        # self.train_loader = self.get_loader('./data/background', True)
+        # self.test_loader = self.get_loader('./data/background_test', True)
+        self.train_loader = self.get_loader('/content/drive/MyDrive/shared_dataset/advcat/data/background', True)
+        self.test_loader = self.get_loader('/content/drive/MyDrive/shared_dataset/advcat/data/background_test', True)
 
         self.epoch_length = len(self.train_loader)
         print(f'One training epoch has {len(self.train_loader.dataset)} images')
