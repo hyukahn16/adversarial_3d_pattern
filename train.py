@@ -138,15 +138,15 @@ class PatchTrainer(object):
         num_colors = 4
 
         # Set paths
-        obj_filename_man = os.path.join(self.DATA_DIR, "Archive/Man_join/man.obj")
-        obj_filename_tshirt = os.path.join(self.DATA_DIR, "Archive/tshirt_join/tshirt.obj")
-        obj_filename_trouser = os.path.join(self.DATA_DIR, "Archive/trouser_join/trouser.obj")
+        obj_filename_man = os.path.join("/content/drive/MyDrive/shared_dataset/advcat", self.DATA_DIR, "Archive/Man_join/man.obj")
+        obj_filename_tshirt = os.path.join("/content/drive/MyDrive/shared_dataset/advcat", self.DATA_DIR, "Archive/tshirt_join/tshirt.obj")
+        obj_filename_trouser = os.path.join("/content/drive/MyDrive/shared_dataset/advcat", self.DATA_DIR, "Archive/trouser_join/trouser.obj")
 
         self.coordinates = torch.stack(torch.meshgrid(torch.arange(h), torch.arange(w)), -1).to(device)
         self.coordinates_t = torch.stack(torch.meshgrid(torch.arange(h_t), torch.arange(w_t)), -1).to(device)
         self.tshirt_point = torch.rand([num_colors, args.num_points_tshirt, 3], requires_grad=True, device=device)
         self.trouser_point = torch.rand([num_colors, args.num_points_trouser, 3], requires_grad=True, device=device)
-        self.colors = torch.load("data/camouflage4.pth").float().to(device)
+        self.colors = torch.load("/content/drive/MyDrive/shared_dataset/advcat/data/camouflage4.pth").float().to(device)
         self.mesh_man = load_objs_as_meshes([obj_filename_man], device=device) # Returns new Meshes object
         self.mesh_tshirt = load_objs_as_meshes([obj_filename_tshirt], device=device)
         self.mesh_trouser = load_objs_as_meshes([obj_filename_trouser], device=device)
