@@ -226,7 +226,7 @@ class PatchTrainer(object):
         loader = torch.utils.data.DataLoader(InriaDataset(img_dir, self.img_size, shuffle=shuffle),
                                              batch_size=self.batch_size,
                                              shuffle=True,
-                                             num_workers=4)
+                                             num_workers=2) # originally worker=4
         return loader
 
     def init_tensorboard(self, name=None):
@@ -750,7 +750,7 @@ if __name__ == '__main__':
     parser.add_argument("--ctrl", type=float, default=1, help='')
     parser.add_argument("--num_points_tshirt", type=int, default=60, help='')
     parser.add_argument("--num_points_trouser", type=int, default=60, help='')
-    parser.add_argument("--arch", type=str, default="rcnn")
+    parser.add_argument("--arch", type=str, default="yolov2")
     parser.add_argument("--cdist", type=float, default=0, help='')
     parser.add_argument("--seed_type", default='fixed', help='fixed, random, variable, langevin')
     parser.add_argument("--rd_num", type=int, default=200, help='')
