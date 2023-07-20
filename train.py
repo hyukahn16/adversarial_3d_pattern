@@ -733,7 +733,7 @@ class PatchTrainer(object):
 
 
 if __name__ == '__main__':
-    print('Version 2.0')
+    print('advcat version 2.0')
     parser = argparse.ArgumentParser(description='PyTorch Training')
     parser.add_argument('--device', default='cuda:0', help='')
     parser.add_argument('--lr', type=float, default=0.001, help='')
@@ -768,7 +768,7 @@ if __name__ == '__main__':
     parser.add_argument("--disable_test_tps3d", default=False, action='store_true', help='')
     parser.add_argument("--seed_ratio", default=1.0, type=float, help='The ratio of trainable part when seed type is variable')
     parser.add_argument("--loss_type", default='max_iou', help='max_iou, max_conf, softplus_max, softplus_sum')
-    parser.add_argument("--test", default=False, action='store_true', help='')
+    parser.add_argument("--test", default=True, action='store_true', help='')
     parser.add_argument("--test_iou", type=float, default=0.1, help='')
     parser.add_argument("--test_nms_thresh", type=float, default=1.0, help='')
     parser.add_argument("--test_mode", default='person', help='person, all')
@@ -791,7 +791,9 @@ if __name__ == '__main__':
     if not args.test:
         trainer.train()
     else:
-        epoch = args.checkpoints - 1
+        args.save_path = "results_paper/yolov3_07"
+        epoch = 599
+        # epoch = args.checkpoints - 1
         trainer.load_weights(args.save_path, epoch)
         trainer.update_mesh(type='determinate')
         precision, recall, avg, confs, thetas = trainer.test(conf_thresh=0.01, iou_thresh=args.test_iou, angle_sample=37, use_tps2d=not args.disable_test_tps2d, use_tps3d=not args.disable_test_tps3d, mode=args.test_mode)
