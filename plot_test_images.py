@@ -5,6 +5,7 @@ from arch.yolov3_models import YOLOv3Darknet
 import os
 from PIL import Image
 import numpy as np
+from torchvision import transforms
 from torchvision.ops import box_iou
 # from avg_precision import get_AP
 
@@ -24,6 +25,10 @@ for f in os.listdir(dir):
     
   # TODO: Load image file as tensor
   test_img = Image.open(img_path).convert('RGB')
+  convert_tensor = transforms.ToTensor()
+  test_img = convert_tensor(test_img).to(device)
+  test_img = test_img[None, :]
+  print(test_img.shape)
   # Get the labels for the testing images
   output = model(test_img)
   
