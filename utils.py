@@ -615,10 +615,10 @@ def plot_boxes(img, boxes, savename=None, class_names=None, class_range=None, te
         y2 = (box[1] + box[3] / 2.0) * height
 
         rgb = (255, 0, 0)
-        cls_id = int(box[6])
+        cls_id = int(box[5])
         if class_names[cls_id] in class_range:
-            if len(box) >= 7 and class_names:
-                cls_conf = box[5]
+            if len(box) >= 6 and class_names:
+                # cls_conf = box[5]
                 # print('[%i]%s: %f, obj conf %f' % (cls_id, class_names[cls_id], cls_conf, box[4]))
                 classes = len(class_names)
                 offset = cls_id * 123457 % classes

@@ -80,5 +80,5 @@ for img_name in patched_imgs:
     with open(label_dir) as label:
         boxes = label.readlines()
         boxes = np.array([b.strip('\n').split() for b in boxes], dtype=float)
-        boxes = [[b[0], b[2], b[1], b[4], b[3]] for b in boxes]
+        boxes = [[b[1], b[2], b[3], b[4], b[5], b[0]] for b in boxes]
         plot_boxes(img, boxes, savename=os.path.join(plot_dir, img_name))
