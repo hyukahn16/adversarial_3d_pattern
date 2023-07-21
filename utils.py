@@ -592,8 +592,8 @@ def back_text(draw, x, y, msg, backc, fontc, font=None):
 def plot_boxes(img, boxes, savename=None, class_names=None, class_range=None, text='conf', font=None):
     colors = torch.FloatTensor([[1, 0, 1], [0, 0, 1], [0, 1, 1], [0, 1, 0], [1, 1, 0], [1, 0, 0]])
     fontc = (255, 255, 255)
-    if class_range is None:
-        class_range = class_names
+    # if class_range is None:
+    #     class_range = class_names
 
     def get_color(c, x, max_val):
         ratio = float(x) / max_val * 5
@@ -616,37 +616,77 @@ def plot_boxes(img, boxes, savename=None, class_names=None, class_range=None, te
 
         rgb = (255, 0, 0)
         cls_id = int(box[5])
-        if class_names[cls_id] in class_range:
-            if len(box) >= 6 and class_names:
-                # cls_conf = box[5]
-                # print('[%i]%s: %f, obj conf %f' % (cls_id, class_names[cls_id], cls_conf, box[4]))
-                classes = len(class_names)
-                offset = cls_id * 123457 % classes
-                red = get_color(2, offset, classes)
-                green = get_color(1, offset, classes)
-                blue = get_color(0, offset, classes)
-                rgb = (red, green, blue)
-                if text == 'class&conf':
-                    back_text(draw, x1, y1, "%d%s %.3f" % (cls_id, class_names[cls_id], box[4]), backc=rgb, fontc=fontc, font=font)
+        if len(box) >= 6 and class_names:
+            # cls_conf = box[5]
+            # print('[%i]%s: %f, obj conf %f' % (cls_id, class_names[cls_id], cls_conf, box[4]))
+            classes = len(class_names)
+            offset = cls_id * 123457 % classes
+            red = get_color(2, offset, classes)
+            green = get_color(1, offset, classes)
+            blue = get_color(0, offset, classes)
+            rgb = (red, green, blue)
+            # if text == 'class&conf':
+            #     back_text(draw, x1, y1, "%d%s %.3f" % (cls_id, class_names[cls_id], box[4]), backc=rgb, fontc=fontc, font=font)
 
-                elif text == 'conf':
-                    back_text(draw, x1, y1, "%.3f" % (box[4]), backc=rgb, fontc=fontc, font=font)
-                elif text == 'class':
-                    w = 12
-                    h = 40
-                    draw.rectangle((x1, y1 - w, x1 + h, y1), fill=rgb)
-                    draw.text((x1 + 2, y1 - w), class_names[cls_id], fill=(0, 0, 0))
-                elif isinstance(text, int):
-                    if cls_id == text:
-                        # draw.text((x1, y1), "%s %.3f" % (class_names[cls_id], box[4]), fill=rgb)
-                        back_text(draw, x1, y1, "%d%s %.3f" % (cls_id, class_names[cls_id], box[4]), backc=rgb, fontc=fontc, font=font)
-                elif text is not None:
-                    pass
-            draw.rectangle([x1, y1, x2, y2], outline=rgb)
+            if text == 'conf':
+                back_text(draw, x1, y1, "%.3f" % (box[4]), backc=rgb, fontc=fontc, font=font)
+            # elif text == 'class':
+            #     w = 12
+            #     h = 40
+            #     draw.rectangle((x1, y1 - w, x1 + h, y1), fill=rgb)
+            #     draw.text((x1 + 2, y1 - w), class_names[cls_id], fill=(0, 0, 0))
+            # elif isinstance(text, int):
+            #     if cls_id == text:
+            #         # draw.text((x1, y1), "%s %.3f" % (class_names[cls_id], box[4]), fill=rgb)
+            #         back_text(draw, x1, y1, "%d%s %.3f" % (cls_id, class_names[cls_id], box[4]), backc=rgb, fontc=fontc, font=font)
+            # elif text is not None:
+            #     pass
+        draw.rectangle([x1, y1, x2, y2], outline=rgb)
     if savename:
         print("save plot results to %s" % savename)
         img.save(savename)
     return img
+'''
+def plot_boxes(img, boxes, savename=None, class_names=None):
+    colors = torch.FloatTensor([[1,0,1],[0,0,1],[0,1,1],[0,1,0],[1,1,0],[1,0,0]]);
+    def get_color(c, x, max_val):
+        ratio = float(x)/max_val * 5
+        i = int(math.floor(ratio))
+        j = int(math.ceil(ratio))
+        ratio = ratio - i
+        r = (1-ratio) * colors[i][c] + ratio*colors[j][c]
+        return int(r*255)
+
+    width = img.width
+    height = img.height
+    draw = ImageDraw.Draw(img)
+    for i in range(len(boxes)):
+        box = boxes[i]
+        # box[1] and box[2] are center x and y
+        # box[3] and box[4] are width and height
+        y1 = (box[1] - box[3]/2.0) * width 
+        x1 = (box[2] - box[4]/2.0) * height
+        y2 = (box[1] + box[3]/2.0) * width
+        x2 = (box[2] + box[4]/2.0) * height
+
+        rgb = (255, 0, 0)
+        if len(box) >= 7 and class_names:
+            cls_conf = box[5]
+            cls_id = box[6]
+            print('[%i]%s: %f' % (cls_id, class_names[cls_id], cls_conf))
+            classes = len(class_names)
+            offset = cls_id * 123457 % classes
+            red   = get_color(2, offset, classes)
+            green = get_color(1, offset, classes)
+            blue  = get_color(0, offset, classes)
+            rgb = (red, green, blue)
+            draw.text((x1, y1), class_names[cls_id], fill=rgb)
+        draw.rectangle([x1, y1, x2, y2], outline = rgb)
+    if savename:
+        print(savename)
+        img.save(savename)
+    return img
+'''
 
 
 def read_truths(lab_path):

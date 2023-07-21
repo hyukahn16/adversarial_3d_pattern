@@ -79,6 +79,8 @@ for img_name in patched_imgs:
     img = Image.open(img_dir).convert('RGB')
     with open(label_dir) as label:
         boxes = label.readlines()
+        if not boxes:
+           continue
         boxes = np.array([b.strip('\n').split() for b in boxes], dtype=float)
         boxes = [[b[1], b[2], b[3], b[4], b[5], b[0]] for b in boxes]
         plot_boxes(img, boxes, savename=os.path.join(plot_dir, img_name))
