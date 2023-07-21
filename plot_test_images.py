@@ -1,6 +1,6 @@
 import utils
+from utils import plot_boxes, plot_boxes_cv2s
 from arch.yolov3_models import YOLOv3Darknet
-# from utils import plot_boxes, plot_boxes_cv2
 
 import os
 from PIL import Image
