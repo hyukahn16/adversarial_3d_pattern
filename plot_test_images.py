@@ -18,11 +18,12 @@ architecture = "yolov3"
 dir = "./test_images" # where the testing images are
 labels_dir = os.path.join(dir, "yolo-labels") # where the testing images labels are
 for f in os.listdir(dir):
-  if not os.path.isfile(os.path.join(dir, f)):
+  img_path = os.path.join(dir, f)
+  if not os.path.isfile(img_path):
     continue
     
   # TODO: Load image file as tensor
-  test_img = Image.open(f).convert('RGB')
+  test_img = Image.open(img_path).convert('RGB')
   # Get the labels for the testing images
   output = model(test_img)
   
