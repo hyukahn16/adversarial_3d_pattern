@@ -1,5 +1,5 @@
 import utils
-from utils import plot_boxes, plot_boxes_cv2s
+from utils import plot_boxes
 from arch.yolov3_models import YOLOv3Darknet
 
 import os
