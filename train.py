@@ -627,9 +627,13 @@ class PatchTrainer(object):
                     p_img_batch, gt = self.synthesis_image(img_batch, use_tps2d, use_tps3d)
 
                     # Save testing images for future 
-                    # for i in range(p_img_batch.size(0)):
-                    #     print("Saving image")
-                    #     torchvision.utils.save_image(p_img_batch[i, :, :, :], './test_images/{}.png'.format(i))
+                    print("Saving images {}".format(i_batch))
+                    for i in range(p_img_batch.size(0)):
+                        torchvision.utils.save_image(
+                            p_img_batch[i, :, :, :],
+                            './test_images/{}_{}_{}.png'.format(i_batch, theta, i)
+                            )
+        return None, None, None, None, None
 
                     normalize = True
                     if self.args.arch == "deformable-detr" and normalize:
@@ -803,9 +807,9 @@ if __name__ == '__main__':
         trainer.load_weights(args.save_path, epoch)
         trainer.update_mesh(type='determinate')
         precision, recall, avg, confs, thetas = trainer.test(conf_thresh=0.01, iou_thresh=args.test_iou, angle_sample=37, use_tps2d=not args.disable_test_tps2d, use_tps3d=not args.disable_test_tps3d, mode=args.test_mode)
-        info = [precision, recall, avg, confs]
-        path = args.save_path + '/' + str(epoch) + 'test_results_tps'
-        path = path + '_iou' + str(args.test_iou).replace('.', '') + '_' + args.test_mode + args.test_suffix
-        path = path + '.npz'
-        np.savez(path, thetas=thetas, info=info)
+        # info = [precision, recall, avg, confs]
+        # path = args.save_path + '/' + str(epoch) + 'test_results_tps'
+        # path = path + '_iou' + str(args.test_iou).replace('.', '') + '_' + args.test_mode + args.test_suffix
+        # path = path + '.npz'
+        # np.savez(path, thetas=thetas, info=info)
 
