@@ -77,7 +77,7 @@ def save_yolo_labels(device, model, architecture, conf_thresh, dir, labels_dir):
           label_f.write(f'{labels[i]} {x_centers[i]} {y_centers[i]} {widths[i]} {heights[i]} {det_confs[i]}\n') 
       label_f.close()
 
-  print("\nFinished Generating YOLO Labels")
+  print("\nFinished Generating YOLO Labels.")
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -106,6 +106,8 @@ def plot_labels_on_images(dir, labels_dir):
           boxes = np.array([b.strip('\n').split() for b in boxes], dtype=float)
           boxes = [[b[1], b[2], b[3], b[4], b[5], b[0]] for b in boxes]
           plot_boxes(img, boxes, savename=os.path.join(plot_dir, img_name))
+  
+  print("\nFinished Plotting Labels on Images.")
 
 # MAIN
 # save_yolo_labels(device, model, architecture, conf_thresh, dir, labels_dir)
