@@ -43,7 +43,7 @@ for img_f in os.listdir(dir):
   output = utils.get_region_boxes_general(output, model, conf_thresh=conf_thresh, name=architecture)
   for i, boxes in enumerate(output):
     # Create and open label file
-    label_file_name = img_f.split(".")[0] + ".txt"
+    label_file_name = img_f.rsplit(".", 1)[0] + ".txt"
     label_file_dir = os.path.join(labels_dir, label_file_name)
     label_f = open(label_file_dir, 'w') # Create and open file
 
