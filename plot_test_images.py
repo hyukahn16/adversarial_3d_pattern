@@ -7,6 +7,7 @@ from PIL import Image
 import numpy as np
 from torchvision import transforms
 from torchvision.ops import box_iou
+from tqdm import tqdm
 
 # 1. GET AND SAVE LABELS FROM YOLO
 device = "cuda:0"
@@ -23,7 +24,11 @@ if not os.path.exists(dir):
 labels_dir = os.path.join(dir, "yolo-labels") # where the testing images labels are
 if not os.path.exists(labels_dir):
    os.makedirs(labels_dir)
-for img_f in os.listdir(dir):
+
+# Get yolo predictions
+print("Starting yolov3 predictions")
+img_files = os.listdir(dir)
+for _, img_f in tqdm(enumerate(img_files), total=len(img_files)):
   img_path = os.path.join(dir, img_f)
 
   # Check if image file or not
