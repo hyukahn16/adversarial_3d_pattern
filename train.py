@@ -621,7 +621,7 @@ class PatchTrainer(object):
         with torch.no_grad():
             j = 0
             for i_batch, img_batch in tqdm(enumerate(self.test_loader), total=len(self.test_loader), position=0):
-                print("{} / len(self.test_loader)".format(i_batch))
+                # print("{} / len(self.test_loader)".format(i_batch))
                 img_batch = img_batch.to(self.device)
                 for it, theta in enumerate(thetas_list):
                     self.sample_cameras(theta=theta)
