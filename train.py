@@ -408,7 +408,7 @@ class PatchTrainer(object):
         # self.writer = self.init_tensorboard()
         args = self.args
         timestr = time.strftime("%m_%d-%H_%M")
-        args.save_path = os.path.join(args.save_path, time_str)
+        args.save_path = os.path.join(args.save_path, timestr)
 
         et0 = time.time()
         checkpoints = args.checkpoints
