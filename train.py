@@ -553,16 +553,17 @@ class PatchTrainer(object):
                 # self.writer.add_scalar('epoch/lr', self.optimizer.param_groups[0]['lr'], epoch)
             et0 = time.time()
 
-            # if (epoch + 1) % 100 == 0 or epoch == 0:
-            #     fig = plt.figure()
-            #     plt.imshow(tex[0].detach().cpu().numpy())
-            #     plt.axis('off')
-            #     self.writer.add_figure('maps_tshirt', fig, epoch)
+            if (epoch + 1) % 100 == 0 or epoch == 0:
+                from google.colab.patches import cv2_imshow
+                # fig = plt.figure()
+                cv2_imshow(tex[0].detach().cpu().numpy())
+                # plt.axis('off')
+                # self.writer.add_figure('maps_tshirt', fig, epoch)
 
-            #     fig = plt.figure()
-            #     plt.imshow(tex_trouser[0].detach().cpu().numpy())
-            #     plt.axis('off')
-            #     self.writer.add_figure('maps_trouser', fig, epoch)
+                # fig = plt.figure()
+                cv2_imshow(tex_trouser[0].detach().cpu().numpy())
+                # plt.axis('off')
+                # self.writer.add_figure('maps_trouser', fig, epoch)
 
             if (epoch + 1) % 1 == 0:
                 # args.save_path = os.path.join(args.save_path, epoch)
