@@ -565,6 +565,7 @@ class PatchTrainer(object):
             #     self.writer.add_figure('maps_trouser', fig, epoch)
 
             if (epoch + 1) % 1 == 0:
+                args.save_path = os.path.join(args.save_path, epoch)
                 if not os.path.exists(args.save_path):
                     os.makedirs(args.save_path)
 
