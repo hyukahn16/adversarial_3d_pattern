@@ -147,7 +147,8 @@ class PatchTrainer(object):
         self.coordinates_t = torch.stack(torch.meshgrid(torch.arange(h_t), torch.arange(w_t)), -1).to(device)
         self.tshirt_point = torch.rand([num_colors, args.num_points_tshirt, 3], requires_grad=True, device=device)
         self.trouser_point = torch.rand([num_colors, args.num_points_trouser, 3], requires_grad=True, device=device)
-        self.colors = torch.load("./data/camouflage4.pth").float().to(device)
+        # self.colors = torch.load("./data/camouflage4.pth").float().to(device)
+        self.colors = torch.load("./data/army_colors.pth").float().to(device)
         self.mesh_man = load_objs_as_meshes([obj_filename_man], device=device) # Returns new Meshes object
         self.mesh_tshirt = load_objs_as_meshes([obj_filename_tshirt], device=device)
         self.mesh_trouser = load_objs_as_meshes([obj_filename_trouser], device=device)
@@ -406,6 +407,8 @@ class PatchTrainer(object):
         """
         # self.writer = self.init_tensorboard()
         args = self.args
+        timestr = time.strftime("%m_%d-%H_%M")
+        args.save_path = os.path.join(args.save_path, time_str)
 
         et0 = time.time()
         checkpoints = args.checkpoints
@@ -564,6 +567,11 @@ class PatchTrainer(object):
             if (epoch + 1) % 1 == 0:
                 if not os.path.exists(args.save_path):
                     os.makedirs(args.save_path)
+
+                torchvision.utils.save_image(
+                    p_img_batch[0, :, :, :],
+                    os.path.join(args.save_path, '{}.png'.format(epoch)))
+
                 path = args.save_path + '/' + str(epoch) + '_circle_epoch.pth'
                 torch.save(self.tshirt_point, path)
                 path = args.save_path + '/' + str(epoch) + '_color_epoch.pth'
@@ -778,7 +786,7 @@ if __name__ == '__main__':
     parser.add_argument("--disable_test_tps3d", default=False, action='store_true', help='')
     parser.add_argument("--seed_ratio", default=1.0, type=float, help='The ratio of trainable part when seed type is variable')
     parser.add_argument("--loss_type", default='max_iou', help='max_iou, max_conf, softplus_max, softplus_sum')
-    parser.add_argument("--test", default=True, action='store_true', help='')
+    parser.add_argument("--test", default=False, action='store_true', help='')
     parser.add_argument("--test_iou", type=float, default=0.1, help='')
     parser.add_argument("--test_nms_thresh", type=float, default=1.0, help='')
     parser.add_argument("--test_mode", default='person', help='person, all')
