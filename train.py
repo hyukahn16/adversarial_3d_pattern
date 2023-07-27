@@ -426,7 +426,7 @@ class PatchTrainer(object):
             eff_count = 0  # record how many images in this epoch are really in training so that we can calculate accurate loss
             self.sampler_probs = self.loss_history / self.num_history
             if epoch % 100 == 0:
-                print(self.sampler_probs)
+                print("\nSampler Probabilities: " + self.sampler_probs + "\n")
             self.loss_history = self.loss_history / 2 + 1e-5
             self.num_history = self.num_history / 2 + 1e-5
             if epoch % 100 == 99:
