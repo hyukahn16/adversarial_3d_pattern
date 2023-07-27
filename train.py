@@ -233,9 +233,9 @@ class PatchTrainer(object):
 
     def init_tensorboard(self, name=None):
         time_str = time.strftime("%Y%m%d-%H%M%S")
-        print(time_str)
         TIMESTAMP = "{0:%Y-%m-%dT%H-%M-%S}".format(datetime.now())
         fname = self.args.save_path.split('/')[-1]
+        print("Created TensorBoard")
         return SummaryWriter(f'runs_new/{TIMESTAMP}_{fname}')
 
     def sample_cameras(self, theta=None, elev=None):
