@@ -555,15 +555,17 @@ class PatchTrainer(object):
 
             if (epoch + 1) % 100 == 0 or epoch == 0:
                 from google.colab.patches import cv2_imshow
-                # fig = plt.figure()
-                cv2_imshow(tex[0].detach().cpu().numpy())
-                # plt.axis('off')
-                # self.writer.add_figure('maps_tshirt', fig, epoch)
+                # cv2_imshow(tex[0].detach().cpu().numpy())
+                fig = plt.figure()
+                plt.imshow(tex[0].detach().cpu().numpy())
+                plt.axis('off')
+                self.writer.add_figure('maps_tshirt', fig, epoch)
 
-                # fig = plt.figure()
-                cv2_imshow(tex_trouser[0].detach().cpu().numpy())
-                # plt.axis('off')
-                # self.writer.add_figure('maps_trouser', fig, epoch)
+                # cv2_imshow(tex_trouser[0].detach().cpu().numpy())
+                fig = plt.figure()
+                plt.imshow(tex_trouser[0].detach().cpu().numpy())
+                plt.axis('off')
+                self.writer.add_figure('maps_trouser', fig, epoch)
 
             if (epoch + 1) % 1 == 0:
                 # args.save_path = os.path.join(args.save_path, epoch)
