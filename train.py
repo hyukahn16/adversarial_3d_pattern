@@ -232,11 +232,9 @@ class PatchTrainer(object):
         return loader
 
     def init_tensorboard(self, name=None):
-        time_str = time.strftime("%Y%m%d-%H%M%S")
-        TIMESTAMP = "{0:%Y-%m-%dT%H-%M-%S}".format(datetime.now())
-        fname = self.args.save_path.split('/')[-1]
+        time_str = time.strftime("%m_%d-%H_%M")
         print("Created TensorBoard")
-        return SummaryWriter(f'runs_new/{TIMESTAMP}_{fname}')
+        return SummaryWriter(f'tensorboards/tb_{time_str}')
 
     def sample_cameras(self, theta=None, elev=None):
         if theta is not None:
