@@ -234,7 +234,8 @@ class PatchTrainer(object):
     def init_tensorboard(self, name=None):
         time_str = time.strftime("%m_%d-%H_%M")
         print("Created TensorBoard")
-        return SummaryWriter(f'tensorboards/tb_{time_str}')
+
+        return SummaryWriter(f'tensorboards/tb-{time_str}')
 
     def sample_cameras(self, theta=None, elev=None):
         if theta is not None:
@@ -413,6 +414,7 @@ class PatchTrainer(object):
         if checkpoints > 0:
             self.load_weights(args.save_path, checkpoints - 1)
 
+        print("Starting training epochs...")
         for epoch in tqdm(range(checkpoints, args.nepoch)):
             ep_det_loss = 0
             ep_loss = 0
@@ -810,6 +812,7 @@ if __name__ == '__main__':
 
     print("Train info:", args)
     trainer = PatchTrainer(args)
+    print("Created PatchTrainer...")
     if not args.test:
         trainer.train()
     else:
