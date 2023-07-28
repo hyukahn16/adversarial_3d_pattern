@@ -358,7 +358,12 @@ class PatchTrainer(object):
         fig = plt.figure()
         plt.imshow(tex[0].detach().cpu().numpy())
         plt.axis('off')
-        self.writer.add_figure('gumbel_tex1', fig)
+        self.writer.add_figure('gumbel_color', fig)
+
+        fig = plt.figure()
+        plt.imshow(self.color_transform(tex.permute(0, 3, 1, 2))[0].detach().cpu().numpy())
+        plt.axis('off')
+        self.writer.add_figure('color_transform', fig)
 
         tex = self.expand_kernel(self.color_transform(tex.permute(0, 3, 1, 2))).permute(0, 2, 3, 1)
         tex_trouser = self.expand_kernel(self.color_transform(tex_trouser.permute(0, 3, 1, 2))).permute(0, 2, 3, 1)
