@@ -355,6 +355,12 @@ class PatchTrainer(object):
         tex = gumbel_color_fix_seed(prob_map, gb_tshirt, self.colors, tau=tau, type=type)
         tex_trouser = gumbel_color_fix_seed(prob_trouser, gb_trouser, self.colors, tau=tau, type=type)
 
+        fig = plt.figure()
+        plt.imshow(tex[0].detach().cpu().numpy())
+        plt.axis('off')
+        self.writer.add_figure('gumbel_tex', fig, epoch)
+        exit()
+
         tex = self.expand_kernel(self.color_transform(tex.permute(0, 3, 1, 2))).permute(0, 2, 3, 1)
         tex_trouser = self.expand_kernel(self.color_transform(tex_trouser.permute(0, 3, 1, 2))).permute(0, 2, 3, 1)
 
