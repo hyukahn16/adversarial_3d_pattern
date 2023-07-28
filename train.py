@@ -234,7 +234,6 @@ class PatchTrainer(object):
     def init_tensorboard(self, name=None):
         time_str = time.strftime("%m_%d-%H_%M")
         print("Created TensorBoard")
-
         return SummaryWriter(f'tensorboards/tb-{time_str}')
 
     def sample_cameras(self, theta=None, elev=None):
@@ -568,6 +567,8 @@ class PatchTrainer(object):
                 plt.imshow(tex_trouser[0].detach().cpu().numpy())
                 plt.axis('off')
                 self.writer.add_figure('maps_trouser', fig, epoch)
+                
+                exit()
 
             # Save checkpoints
             if (epoch + 1) % 1 == 0:
