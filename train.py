@@ -403,7 +403,7 @@ class PatchTrainer(object):
         Optimize a patch to generate an adversarial example.
         :return: Nothing
         """
-        # self.writer = self.init_tensorboard()
+        self.writer = self.init_tensorboard()
         args = self.args
         timestr = time.strftime("%m_%d-%H_%M")
         args.save_path = os.path.join(args.save_path, timestr)
@@ -543,15 +543,16 @@ class PatchTrainer(object):
                 print('LEARNING RATE', self.optimizer.param_groups[0]['lr'])
                 print("\n\n")
 
-                # self.writer.add_scalar('epoch/total_loss', ep_loss, epoch)
-                # self.writer.add_scalar('epoch/tv_loss', ep_tv_loss, epoch)
-                # self.writer.add_scalar('epoch/det_loss', ep_det_loss, epoch)
-                # self.writer.add_scalar('epoch/ctrl_loss', ep_ctrl_loss, epoch)
-                # self.writer.add_scalar('epoch/seed_loss', ep_seed_loss, epoch)
-                # self.writer.add_scalar('epoch/lr', self.optimizer.param_groups[0]['lr'], epoch)
+                self.writer.add_scalar('epoch/total_loss', ep_loss, epoch)
+                self.writer.add_scalar('epoch/tv_loss', ep_tv_loss, epoch)
+                self.writer.add_scalar('epoch/det_loss', ep_det_loss, epoch)
+                self.writer.add_scalar('epoch/ctrl_loss', ep_ctrl_loss, epoch)
+                self.writer.add_scalar('epoch/seed_loss', ep_seed_loss, epoch)
+                self.writer.add_scalar('epoch/lr', self.optimizer.param_groups[0]['lr'], epoch)
             et0 = time.time()
 
-            if (epoch + 1) % 100 == 0 or epoch == 0:
+            # Save textures?
+            if (epoch + 1) % 1 == 0 or epoch == 0:
                 from google.colab.patches import cv2_imshow
                 # cv2_imshow(tex[0].detach().cpu().numpy())
                 fig = plt.figure()
@@ -565,6 +566,7 @@ class PatchTrainer(object):
                 plt.axis('off')
                 self.writer.add_figure('maps_trouser', fig, epoch)
 
+            # Save checkpoints
             if (epoch + 1) % 1 == 0:
                 # args.save_path = os.path.join(args.save_path, epoch)
                 if not os.path.exists(args.save_path):
