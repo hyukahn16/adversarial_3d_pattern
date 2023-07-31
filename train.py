@@ -365,8 +365,10 @@ class PatchTrainer(object):
         # plt.axis('off')
         # self.writer.add_figure('color_transform', fig)
 
-        tex = self.expand_kernel(self.color_transform(tex.permute(0, 3, 1, 2))).permute(0, 2, 3, 1)
-        tex_trouser = self.expand_kernel(self.color_transform(tex_trouser.permute(0, 3, 1, 2))).permute(0, 2, 3, 1)
+        # tex = self.color_transform(tex.permute(0, 3, 1, 2))
+        # tex_trouser = self.color_transform(tex_trouser.permute(0, 3, 1, 2))
+        tex = self.expand_kernel(tex).permute(0, 2, 3, 1)
+        tex_trouser = self.expand_kernel(tex_trouser).permute(0, 2, 3, 1)
 
         # fig = plt.figure()
         # plt.imshow(tex[0].detach().cpu().numpy())
@@ -570,8 +572,8 @@ class PatchTrainer(object):
             et0 = time.time()
 
             # Save textures?
-            if (epoch + 1) % 1 == 0 or epoch == 0:
-                from google.colab.patches import cv2_imshow
+            if (epoch + 1) % 50 == 0 or epoch == 0:
+                # from google.colab.patches import cv2_imshow
                 # cv2_imshow(tex[0].detach().cpu().numpy())
                 fig = plt.figure()
                 plt.imshow(tex[0].detach().cpu().numpy())
@@ -587,7 +589,7 @@ class PatchTrainer(object):
                 exit()
 
             # Save checkpoints
-            if (epoch + 1) % 1 == 0:
+            if (epoch + 1) % 25 == 0 or epoch == 0:
                 # args.save_path = os.path.join(args.save_path, epoch)
                 if not os.path.exists(args.save_path):
                     os.makedirs(args.save_path)
