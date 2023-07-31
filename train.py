@@ -575,7 +575,7 @@ class PatchTrainer(object):
             et0 = time.time()
 
             # Save textures?
-            if (epoch + 1) % 50 == 0 or epoch == 0:
+            if (epoch + 1) % 10 == 0 or epoch == 0:
                 # from google.colab.patches import cv2_imshow
                 # cv2_imshow(tex[0].detach().cpu().numpy())
                 fig = plt.figure()
@@ -590,7 +590,7 @@ class PatchTrainer(object):
                 self.writer.add_figure('maps_trouser', fig, epoch)
 
             # Save checkpoints
-            if (epoch + 1) % 25 == 0 or epoch == 0:
+            if (epoch + 1) % 10 == 0 or epoch == 0:
                 # args.save_path = os.path.join(args.save_path, epoch)
                 if not os.path.exists(args.save_path):
                     os.makedirs(args.save_path)
@@ -628,6 +628,7 @@ class PatchTrainer(object):
                 path = args.save_path + '/' + str(epoch) + 'info.npz'
                 np.savez(path, loss_history=self.loss_history.cpu().numpy(), num_history=self.num_history.cpu().numpy(), azim=self.azim.cpu().numpy())
 
+            # Evaluate training
             if (epoch + 1) % 300 == 0:
                 self.update_mesh(type='determinate')
                 for iou_thresh in [0.01, 0.1, 0.3, 0.5]:
