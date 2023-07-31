@@ -349,8 +349,8 @@ class PatchTrainer(object):
         prob_map = prob_map.squeeze(0).permute(1, 2, 0)
         prob_trouser = prob_trouser.squeeze(0).permute(1, 2, 0)
 
-        gb_tshirt = -(-(self.seeds_tshirt + 1e-20).log() + 1e-20).log()
-        gb_trouser = -(-(self.seeds_trouser + 1e-20).log() + 1e-20).log()
+        gb_tshirt = -(-(self.seeds_tshirt + 5e-20).log() + 5e-20).log()
+        gb_trouser = -(-(self.seeds_trouser + 5e-20).log() + 5e-20).log()
 
         tex = gumbel_color_fix_seed(prob_map, gb_tshirt, self.colors, tau=tau, type=type)
         tex_trouser = gumbel_color_fix_seed(prob_trouser, gb_trouser, self.colors, tau=tau, type=type)
@@ -632,7 +632,7 @@ class PatchTrainer(object):
             # Save pattern with lowest detection rate
             if ep_det_loss < best_det_loss:
                 best_det_loss = ep_det_loss
-                
+
                 if not os.path.exists(args.save_path):
                     os.makedirs(args.save_path)
 
@@ -837,8 +837,8 @@ if __name__ == '__main__':
     parser.add_argument("--blur", type=float, default=1, help='')
     parser.add_argument("--like", type=float, default=1, help='')
     parser.add_argument("--ctrl", type=float, default=1, help='')
-    parser.add_argument("--num_points_tshirt", type=int, default=100, help='')
-    parser.add_argument("--num_points_trouser", type=int, default=100, help='')
+    parser.add_argument("--num_points_tshirt", type=int, default=60, help='')
+    parser.add_argument("--num_points_trouser", type=int, default=60, help='')
     parser.add_argument("--arch", type=str, default="yolov3")
     parser.add_argument("--cdist", type=float, default=0, help='')
     parser.add_argument("--seed_type", default='fixed', help='fixed, random, variable, langevin')
