@@ -435,6 +435,7 @@ class PatchTrainer(object):
             self.load_weights(args.save_path, checkpoints - 1)
 
         print("Starting training epochs...")
+        best_det_loss = 1.0
         for epoch in tqdm(range(checkpoints, args.nepoch)):
             ep_det_loss = 0
             ep_loss = 0
@@ -627,6 +628,47 @@ class PatchTrainer(object):
 
                 path = args.save_path + '/' + str(epoch) + 'info.npz'
                 np.savez(path, loss_history=self.loss_history.cpu().numpy(), num_history=self.num_history.cpu().numpy(), azim=self.azim.cpu().numpy())
+
+            # Save pattern with lowest detection rate
+            if ep_det_loss < best_det_loss:
+                best_det_loss = ep_det_loss
+                
+                if not os.path.exists(args.save_path):
+                    os.makedirs(args.save_path)
+
+                # Save sample of training image
+                torchvision.utils.save_image(
+                    p_img_batch[0, :, :, :],
+                    os.path.join(args.save_path, 'best.png'))
+
+                path = args.save_path + '/' + 'best_' + str(epoch) + '_circle_epoch.pth'
+                torch.save(self.tshirt_point, path)
+                path = args.save_path + '/' + 'best_' + str(epoch) + '_color_epoch.pth'
+                torch.save(self.colors, path)
+                path = args.save_path + '/' + 'best_' + str(epoch) + '_trouser_epoch.pth'
+                torch.save(self.trouser_point, path)
+
+                path = args.save_path + '/' + 'best_' + str(epoch) + '_seed_tshirt_epoch.pth'
+                torch.save(self.seeds_tshirt, path)
+
+                path = args.save_path + '/' + 'best_' + str(epoch) + '_seed_trouser_epoch.pth'
+                torch.save(self.seeds_trouser, path)
+
+                if args.seed_type in ['variable', 'langevin']:
+                    path = args.save_path + '/' + 'best_' + str(epoch) + '_seed_tshirt_train_epoch.pth'
+                    torch.save(self.seeds_tshirt_train, path)
+
+                    path = args.save_path + '/' + 'best_' + str(epoch) + '_seed_trouser_train_epoch.pth'
+                    torch.save(self.seeds_trouser_train, path)
+
+                    path = args.save_path + '/' + 'best_' + str(epoch) + '_seed_tshirt_fixed_epoch.pth'
+                    torch.save(self.seeds_tshirt_fixed, path)
+
+                    path = args.save_path + '/' + 'best_' + str(epoch) + '_seed_trouser_fixed_epoch.pth'
+                    torch.save(self.seeds_trouser_fixed, path)
+
+                path = args.save_path + '/' + 'best_' + str(epoch) + 'info.npz'
+                np.savez(path, loss_history=self.loss_history.cpu().numpy(), num_history=self.num_history.cpu().numpy(), azim=self.azim.cpu().numpy())               
 
             # Evaluate training
             if (epoch + 1) % 300 == 0:
