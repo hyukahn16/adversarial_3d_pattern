@@ -588,8 +588,6 @@ class PatchTrainer(object):
                 plt.imshow(tex_trouser[0].detach().cpu().numpy())
                 plt.axis('off')
                 self.writer.add_figure('maps_trouser', fig, epoch)
-                
-                exit()
 
             # Save checkpoints
             if (epoch + 1) % 25 == 0 or epoch == 0:
