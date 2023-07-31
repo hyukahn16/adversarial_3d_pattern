@@ -365,9 +365,12 @@ class PatchTrainer(object):
         # plt.axis('off')
         # self.writer.add_figure('color_transform', fig)
 
-        # tex = self.color_transform(tex.permute(0, 3, 1, 2))
-        # tex_trouser = self.color_transform(tex_trouser.permute(0, 3, 1, 2))
+        tex = tex.permute(0, 3, 1, 2)
+        # tex = self.color_transform(tex)
         tex = self.expand_kernel(tex).permute(0, 2, 3, 1)
+
+        tex_trouser = tex_trouser.permute(0, 3, 1, 2)
+        # tex_trouser = self.color_transform(tex_trouser)
         tex_trouser = self.expand_kernel(tex_trouser).permute(0, 2, 3, 1)
 
         # fig = plt.figure()
