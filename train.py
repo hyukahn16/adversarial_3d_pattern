@@ -556,7 +556,7 @@ class PatchTrainer(object):
             ep_mean_prob = ep_mean_prob / eff_count
             ep_seed_loss = ep_seed_loss / eff_count
             if True:
-                print('  EPOCH NR: ', epoch),
+                print('\n  EPOCH NR: ', epoch),
                 print('EPOCH LOSS: ', ep_loss)
                 print('  DET LOSS: ', ep_det_loss)
                 print(' MEAN PROB: ', ep_mean_prob)
