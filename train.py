@@ -442,7 +442,7 @@ class PatchTrainer(object):
         checkpoints = args.checkpoints
         if checkpoints > 0:
             # loading trained checkpoints
-            args.save_path = os.path.join(args.save_path, "08_03_01-36")
+            args.save_path = os.path.join(args.save_path, "08-03_01-36")
             self.load_weights(args.save_path, checkpoints-1, best=True)
 
             # Remove train folder to create new train folder
