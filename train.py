@@ -428,6 +428,8 @@ class PatchTrainer(object):
         args = self.args
         timestr = time.strftime("%m_%d-%H_%M")
         args.save_path = os.path.join(args.save_path, timestr)
+        if not os.path.exists(args.save_path):
+            os.makedirs(args.save_path)
 
         et0 = time.time()
         checkpoints = args.checkpoints
@@ -597,10 +599,6 @@ class PatchTrainer(object):
 
             # Save checkpoints
             if (epoch + 1) % 20 == 0 or epoch == 0:
-                # args.save_path = os.path.join(args.save_path, epoch)
-                if not os.path.exists(args.save_path):
-                    os.makedirs(args.save_path)
-
                 torchvision.utils.save_image(
                     p_img_batch[0, :, :, :],
                     os.path.join(args.save_path, '{}.png'.format(epoch)))
@@ -637,9 +635,6 @@ class PatchTrainer(object):
             # Save pattern with BEST attack rate
             if ep_det_loss < best_det_loss:
                 best_det_loss = ep_det_loss
-
-                if not os.path.exists(args.save_path):
-                    os.makedirs(args.save_path)
 
                 # Save sample of training image
                 torchvision.utils.save_image(
