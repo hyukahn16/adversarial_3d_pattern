@@ -386,7 +386,7 @@ class PatchTrainer(object):
 
     def load_weights(self, save_path, epoch, best=False):
         if not os.path.exists(args.save_path):
-            print("Loading path does not exist")
+            print("Loading path \"{}\"does not exist. Exiting...".format(args.save_path))
             exit()
 
         if best:
@@ -444,7 +444,7 @@ class PatchTrainer(object):
             # loading trained checkpoints
             args.save_path = os.path.join(args.save_path, "08_03_01-36")
             self.load_weights(args.save_path, checkpoints-1, best=True)
-            
+
             # Remove train folder to create new train folder
             args.save_path = args.save_path.rsplit('/', 1)[0]
 
