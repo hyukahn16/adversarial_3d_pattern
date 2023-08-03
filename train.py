@@ -136,7 +136,7 @@ class PatchTrainer(object):
         resolution = 4
         h, w, h_t, w_t = int(self.fig_size_H / resolution), int(self.fig_size_W / resolution), int(self.fig_size_H_t / resolution), int(self.fig_size_W_t / resolution)
         self.h, self.w, self.h_t, self.w_t = h, w, h_t, w_t
-        num_colors = 4
+        num_colors = 5
 
         # Set paths
         obj_filename_man = os.path.join(self.DATA_DIR, "Archive/Man_join/man.obj")
@@ -148,7 +148,7 @@ class PatchTrainer(object):
         self.tshirt_point = torch.rand([num_colors, args.num_points_tshirt, 3], requires_grad=True, device=device)
         self.trouser_point = torch.rand([num_colors, args.num_points_trouser, 3], requires_grad=True, device=device)
         # self.colors = torch.load("./data/camouflage4.pth").float().to(device)
-        self.colors = torch.load("./data/army_colors.pth").float().to(device)
+        self.colors = torch.load("./data/army_colors_5.pth").float().to(device)
         self.mesh_man = load_objs_as_meshes([obj_filename_man], device=device) # Returns new Meshes object
         self.mesh_tshirt = load_objs_as_meshes([obj_filename_tshirt], device=device)
         self.mesh_trouser = load_objs_as_meshes([obj_filename_trouser], device=device)
