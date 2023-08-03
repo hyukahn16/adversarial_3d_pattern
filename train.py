@@ -639,7 +639,7 @@ class PatchTrainer(object):
                 # Save sample of training image
                 torchvision.utils.save_image(
                     p_img_batch[0, :, :, :],
-                    os.path.join(args.save_path, 'best_{}.png'.formate(epoch)))
+                    os.path.join(args.save_path, 'best_{}.png'.format(epoch)))
 
                 # path = args.save_path + '/' + 'best_' + str(epoch) + '_circle_epoch.pth'
                 path = args.save_path + '/' + 'best_circle_epoch.pth'
