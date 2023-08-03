@@ -558,15 +558,15 @@ class PatchTrainer(object):
             ep_mean_prob = ep_mean_prob / eff_count
             ep_seed_loss = ep_seed_loss / eff_count
             if True:
-                print('\n  EPOCH NR: ', epoch),
-                print('EPOCH LOSS: ', ep_loss)
-                print('  DET LOSS: ', ep_det_loss)
-                print(' MEAN PROB: ', ep_mean_prob)
-                print('   TV LOSS: ', ep_tv_loss)
-                print(' CTRL LOSS: ', ep_ctrl_loss)
-                print(' SEED LOSS: ', ep_seed_loss)
-                print('EPOCH TIME: ', et1 - et0)
-                print('LEARNING RATE', self.optimizer.param_groups[0]['lr'])
+                # print('\n  EPOCH NR: ', epoch),
+                print('\nEPOCH LOSS: ', ep_loss)
+                print('DET LOSS  : ', ep_det_loss)
+                print('    MEAN PROB : ', ep_mean_prob)
+                print('    TV LOSS   : ', ep_tv_loss)
+                print('    CTRL LOSS : ', ep_ctrl_loss)
+                print('    SEED LOSS : ', ep_seed_loss)
+                print('    EPOCH TIME: ', et1 - et0)
+                print('    LEARNING RATE', self.optimizer.param_groups[0]['lr'])
                 print("\n\n")
 
                 torchvision.utils.save_image(
@@ -831,7 +831,7 @@ if __name__ == '__main__':
     parser.add_argument('--device', default='cuda:0', help='')
     parser.add_argument('--lr', type=float, default=0.001, help='')
     parser.add_argument('--lr_seed', type=float, default=0.01, help='')
-    parser.add_argument('--nepoch', type=int, default=600, help='')
+    parser.add_argument('--nepoch', type=int, default=100, help='')
     parser.add_argument('--checkpoints', type=int, default=0, help='')
     parser.add_argument('--batch_size', type=int, default=4, help='')
     parser.add_argument('--save_path', default='results/', help='')
