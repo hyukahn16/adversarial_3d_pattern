@@ -584,7 +584,6 @@ class PatchTrainer(object):
                 print('    SEED LOSS : ', ep_seed_loss)
                 print('    EPOCH TIME: ', et1 - et0)
                 print('    LEARNING RATE', self.optimizer.param_groups[0]['lr'])
-                print("\n")
 
                 sample_path = os.path.join(args.save_path, "train_samples")
                 if not os.path.exists(sample_path):
@@ -593,27 +592,27 @@ class PatchTrainer(object):
                     p_img_batch[0, :, :, :],
                     os.path.join(sample_path, '{}_{}.png'.format(epoch, 0)))
 
-                self.writer.add_scalar('epoch/total_loss', ep_loss, epoch)
-                self.writer.add_scalar('epoch/tv_loss', ep_tv_loss, epoch)
-                self.writer.add_scalar('epoch/det_loss', ep_det_loss, epoch)
-                self.writer.add_scalar('epoch/ctrl_loss', ep_ctrl_loss, epoch)
-                self.writer.add_scalar('epoch/seed_loss', ep_seed_loss, epoch)
-                self.writer.add_scalar('epoch/lr', self.optimizer.param_groups[0]['lr'], epoch)
+                # self.writer.add_scalar('epoch/total_loss', ep_loss, epoch)
+                # self.writer.add_scalar('epoch/tv_loss', ep_tv_loss, epoch)
+                # self.writer.add_scalar('epoch/det_loss', ep_det_loss, epoch)
+                # self.writer.add_scalar('epoch/ctrl_loss', ep_ctrl_loss, epoch)
+                # self.writer.add_scalar('epoch/seed_loss', ep_seed_loss, epoch)
+                # self.writer.add_scalar('epoch/lr', self.optimizer.param_groups[0]['lr'], epoch)
 
             # Save textures
-            if (epoch + 1) % 20 == 0 or epoch == 0:
-                # from google.colab.patches import cv2_imshow
-                # cv2_imshow(tex[0].detach().cpu().numpy())
-                fig = plt.figure()
-                plt.imshow(tex[0].detach().cpu().numpy())
-                plt.axis('off')
-                self.writer.add_figure('maps_tshirt', fig, epoch)
+            # if (epoch + 1) % 20 == 0 or epoch == 0:
+            #     # from google.colab.patches import cv2_imshow
+            #     # cv2_imshow(tex[0].detach().cpu().numpy())
+            #     fig = plt.figure()
+            #     plt.imshow(tex[0].detach().cpu().numpy())
+            #     plt.axis('off')
+            #     self.writer.add_figure('maps_tshirt', fig, epoch)
 
-                # cv2_imshow(tex_trouser[0].detach().cpu().numpy())
-                fig = plt.figure()
-                plt.imshow(tex_trouser[0].detach().cpu().numpy())
-                plt.axis('off')
-                self.writer.add_figure('maps_trouser', fig, epoch)
+            #     # cv2_imshow(tex_trouser[0].detach().cpu().numpy())
+            #     fig = plt.figure()
+            #     plt.imshow(tex_trouser[0].detach().cpu().numpy())
+            #     plt.axis('off')
+            #     self.writer.add_figure('maps_trouser', fig, epoch)
 
             # Save checkpoints
             if (epoch + 1) % 20 == 0 or epoch == 0:
@@ -658,15 +657,15 @@ class PatchTrainer(object):
                 np.savez(path, loss_history=self.loss_history.cpu().numpy(), num_history=self.num_history.cpu().numpy(), azim=self.azim.cpu().numpy())               
 
             # Evaluate training
-            if (epoch + 1) % 300 == 0:
-                self.update_mesh(type='determinate')
-                for iou_thresh in [0.01, 0.1, 0.3, 0.5]:
-                    precision, recall, avg, confs, thetas = self.test(conf_thresh=0.01, iou_thresh=iou_thresh, angle_sample=37, use_tps2d=not args.disable_test_tps2d, use_tps3d=not args.disable_test_tps3d, mode=args.test_mode)
-                    info = [precision, recall, avg, confs]
-                    path = args.save_path + '/' + str(epoch) + 'test_results_tps'
-                    path = path + '_iou' + str(iou_thresh).replace('.', '') + '_' + args.test_mode
-                    path = path + '.npz'
-                    np.savez(path, thetas=thetas, info=info)
+            # if (epoch + 1) % 300 == 0:
+            #     self.update_mesh(type='determinate')
+            #     for iou_thresh in [0.01, 0.1, 0.3, 0.5]:
+            #         precision, recall, avg, confs, thetas = self.test(conf_thresh=0.01, iou_thresh=iou_thresh, angle_sample=37, use_tps2d=not args.disable_test_tps2d, use_tps3d=not args.disable_test_tps3d, mode=args.test_mode)
+            #         info = [precision, recall, avg, confs]
+            #         path = args.save_path + '/' + str(epoch) + 'test_results_tps'
+            #         path = path + '_iou' + str(iou_thresh).replace('.', '') + '_' + args.test_mode
+            #         path = path + '.npz'
+            #         np.savez(path, thetas=thetas, info=info)
 
 
     def test(self, conf_thresh, iou_thresh, num_of_samples=100, angle_sample=37, use_tps2d=True, use_tps3d=True, mode='person'):
