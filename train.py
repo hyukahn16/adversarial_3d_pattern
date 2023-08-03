@@ -454,7 +454,7 @@ class PatchTrainer(object):
 
         print("Starting training epochs...\n")
         best_det_loss = 1.0
-        for epoch in tqdm(range(checkpoints, args.nepoch)):
+        for epoch in tqdm(range(checkpoints, args.nepoch), initial=checkpoints):
             et0 = time.time()
             ep_det_loss = 0
             ep_loss = 0
