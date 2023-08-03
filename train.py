@@ -384,36 +384,41 @@ class PatchTrainer(object):
 
         return tex, tex_trouser
 
-    def load_weights(self, save_path, epoch):
-        path = save_path + '/' + str(epoch) + '_circle_epoch.pth'
+    def load_weights(self, save_path, epoch, best=True):
+        if best:
+            save_path = os.path.join(save_path, "best")
+        else:
+            save_path = os.path.join(save_path, str(epoch))
+
+        path = save_path + '_circle_epoch.pth'
         self.tshirt_point.data = torch.load(path, map_location='cpu').to(self.device)
 
-        path = save_path + '/' + str(epoch) + '_color_epoch.pth'
+        path = save_path + '_color_epoch.pth'
         self.colors.data = torch.load(path, map_location='cpu').to(self.device)
 
-        path = save_path + '/' + str(epoch) + '_trouser_epoch.pth'
+        path = save_path + '_trouser_epoch.pth'
         self.trouser_point.data = torch.load(path, map_location='cpu').to(self.device)
 
-        path = save_path + '/' + str(epoch) + '_seed_tshirt_epoch.pth'
+        path = save_path + '_seed_tshirt_epoch.pth'
         self.seeds_tshirt = torch.load(path, map_location='cpu').to(self.device)
 
-        path = save_path + '/' + str(epoch) + '_seed_trouser_epoch.pth'
+        path = save_path + '_seed_trouser_epoch.pth'
         self.seeds_trouser = torch.load(path, map_location='cpu').to(self.device)
 
-        if self.args.seed_type in ['variable', 'langevin']:
-            path = save_path + '/' + str(epoch) + '_seed_tshirt_train_epoch.pth'
-            self.seeds_tshirt_train.data = torch.load(path, map_location='cpu').to(self.device)
+        # if self.args.seed_type in ['variable', 'langevin']:
+        #     path = save_path + '/' + str(epoch) + '_seed_tshirt_train_epoch.pth'
+        #     self.seeds_tshirt_train.data = torch.load(path, map_location='cpu').to(self.device)
 
-            path = save_path + '/' + str(epoch) + '_seed_trouser_train_epoch.pth'
-            self.seeds_trouser_train.data = torch.load(path, map_location='cpu').to(self.device)
+        #     path = save_path + '/' + str(epoch) + '_seed_trouser_train_epoch.pth'
+        #     self.seeds_trouser_train.data = torch.load(path, map_location='cpu').to(self.device)
 
-            path = save_path + '/' + str(epoch) + '_seed_tshirt_fixed_epoch.pth'
-            self.seeds_tshirt_fixed.data = torch.load(path, map_location='cpu').to(self.device)
+        #     path = save_path + '/' + str(epoch) + '_seed_tshirt_fixed_epoch.pth'
+        #     self.seeds_tshirt_fixed.data = torch.load(path, map_location='cpu').to(self.device)
 
-            path = save_path + '/' + str(epoch) + '_seed_trouser_fixed_epoch.pth'
-            self.seeds_trouser_fixed.data = torch.load(path, map_location='cpu').to(self.device)
+        #     path = save_path + '/' + str(epoch) + '_seed_trouser_fixed_epoch.pth'
+        #     self.seeds_trouser_fixed.data = torch.load(path, map_location='cpu').to(self.device)
 
-        path = save_path + '/' + str(epoch) + 'info.npz'
+        path = save_path + 'info.npz'
         if os.path.exists(path):
             x = np.load(path)
             self.loss_history = torch.from_numpy(x['loss_history']).to(self.device)
@@ -426,19 +431,22 @@ class PatchTrainer(object):
         """
         self.writer = self.init_tensorboard()
         args = self.args
+
+        checkpoints = args.checkpoints
+        if checkpoints > 0:
+            # loading train checkpoints
+            args.save_path = os.path.join(args.save_path, "08_31_01-36")
+            self.load_weights(args.save_path, checkpoints - 1)
+
         timestr = time.strftime("%m_%d-%H_%M")
         args.save_path = os.path.join(args.save_path, timestr)
         if not os.path.exists(args.save_path):
             os.makedirs(args.save_path)
 
-        et0 = time.time()
-        checkpoints = args.checkpoints
-        if checkpoints > 0:
-            self.load_weights(args.save_path, checkpoints - 1)
-
         print("Starting training epochs...")
         best_det_loss = 1.0
         for epoch in tqdm(range(checkpoints, args.nepoch)):
+            et0 = time.time()
             ep_det_loss = 0
             ep_loss = 0
             ep_mean_prob = 0
@@ -464,7 +472,7 @@ class PatchTrainer(object):
 
             for i_batch, img_batch in enumerate(self.train_loader):
                 img_batch = img_batch.to(self.device)
-                t0 = time.time()
+                # t0 = time.time()
                 # AG step
                 self.optimizer.zero_grad()
                 self.optimizer_seed.zero_grad()
@@ -478,20 +486,20 @@ class PatchTrainer(object):
 
                 tex, tex_trouser = self.update_mesh(tau=tau)
                 p_img_batch, gt = self.synthesis_image(img_batch, not args.disable_tps2d, not args.disable_tps3d)
-                t1 = time.time()
+                # t1 = time.time()
                 normalize = True
                 if self.args.arch == "deformable-detr" and normalize:
                     normalize = transforms.Normalize([0.485, 0.456, 0.406],[0.229, 0.224, 0.225])
                     p_img_batch = normalize(p_img_batch)
                 output = self.model(p_img_batch)
 
-                t2 = time.time()
+                # t2 = time.time()
                 try:
                     det_loss, max_prob_list = self.prob_extractor(output, gt, loss_type=args.loss_type, iou_thresh=args.train_iou)
                     eff_count += 1
                 except RuntimeError:  # current batch of imgs have no bbox be detected
                     continue
-                t3 = time.time()
+                # t3 = time.time()
                 if self.azim_inds is not None:
                     self.loss_history.index_put_([self.azim_inds], max_prob_list.detach(), accumulate=True)
                     self.num_history.index_put_([self.azim_inds], torch.ones_like(max_prob_list), accumulate=True)
@@ -537,7 +545,7 @@ class PatchTrainer(object):
                             raw = s + s.new(s.shape).normal_() * beta
                             s.data = raw.clamp(args.clamp_shift, 1 - args.clamp_shift) * 2 - raw
                             s.data.clamp_(args.clamp_shift, 1 - args.clamp_shift)
-                t4 = time.time()
+                # t4 = time.time()
                 self.tshirt_point.data = self.tshirt_point.data.clamp(0, 1)
                 self.colors.data = self.colors.data.clamp(0, 1)
                 self.trouser_point.data = self.trouser_point.data.clamp(0, 1)
@@ -571,7 +579,7 @@ class PatchTrainer(object):
 
                 torchvision.utils.save_image(
                     p_img_batch[0, :, :, :],
-                    os.path.join(args.save_path, 'train_{}_{}.png'.format(epoch, 0)))
+                    os.path.join(args.save_path, '{}_train_{}.png'.format(epoch, 0)))
 
                 self.writer.add_scalar('epoch/total_loss', ep_loss, epoch)
                 self.writer.add_scalar('epoch/tv_loss', ep_tv_loss, epoch)
@@ -579,7 +587,6 @@ class PatchTrainer(object):
                 self.writer.add_scalar('epoch/ctrl_loss', ep_ctrl_loss, epoch)
                 self.writer.add_scalar('epoch/seed_loss', ep_seed_loss, epoch)
                 self.writer.add_scalar('epoch/lr', self.optimizer.param_groups[0]['lr'], epoch)
-            et0 = time.time()
 
             # Save textures
             if (epoch + 1) % 20 == 0 or epoch == 0:
@@ -598,9 +605,9 @@ class PatchTrainer(object):
 
             # Save checkpoints
             if (epoch + 1) % 20 == 0 or epoch == 0:
-                torchvision.utils.save_image(
-                    p_img_batch[0, :, :, :],
-                    os.path.join(args.save_path, '{}.png'.format(epoch)))
+                # torchvision.utils.save_image(
+                #     p_img_batch[0, :, :, :],
+                #     os.path.join(args.save_path, '{}.png'.format(epoch)))
 
                 path = args.save_path + '/' + str(epoch) + '_circle_epoch.pth'
                 torch.save(self.tshirt_point, path)
@@ -633,6 +640,7 @@ class PatchTrainer(object):
 
             # Save pattern with BEST attack rate
             if ep_det_loss < best_det_loss:
+                print("Saving best detection loss...")
                 best_det_loss = ep_det_loss
 
                 # Save sample of training image
