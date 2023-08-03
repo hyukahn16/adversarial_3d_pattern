@@ -395,7 +395,6 @@ class PatchTrainer(object):
             save_path = os.path.join(save_path, str(epoch))
 
         path = save_path + '_circle_epoch.pth'
-        print(path)
         self.tshirt_point.data = torch.load(path, map_location='cpu').to(self.device)
 
         path = save_path + '_color_epoch.pth'
@@ -453,7 +452,7 @@ class PatchTrainer(object):
         if not os.path.exists(args.save_path):
             os.makedirs(args.save_path)
 
-        print("Starting training epochs...")
+        print("Starting training epochs...\n")
         best_det_loss = 1.0
         for epoch in tqdm(range(checkpoints, args.nepoch)):
             et0 = time.time()
@@ -585,7 +584,7 @@ class PatchTrainer(object):
                 print('    SEED LOSS : ', ep_seed_loss)
                 print('    EPOCH TIME: ', et1 - et0)
                 print('    LEARNING RATE', self.optimizer.param_groups[0]['lr'])
-                print("\n\n")
+                print("\n")
 
                 sample_path = os.path.join(args.save_path, "train_samples")
                 if not os.path.exists(sample_path):
