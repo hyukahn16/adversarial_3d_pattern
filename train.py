@@ -384,9 +384,10 @@ class PatchTrainer(object):
 
         return tex, tex_trouser
 
-    def load_weights(self, save_path, epoch, best=True):
+    def load_weights(self, save_path, epoch, best=False):
         if not os.path.exists(args.save_path):
-            return
+            print("Loading path does not exist")
+            exit()
 
         if best:
             save_path = os.path.join(save_path, "best")
@@ -394,6 +395,7 @@ class PatchTrainer(object):
             save_path = os.path.join(save_path, str(epoch))
 
         path = save_path + '_circle_epoch.pth'
+        print(path)
         self.tshirt_point.data = torch.load(path, map_location='cpu').to(self.device)
 
         path = save_path + '_color_epoch.pth'
@@ -427,6 +429,8 @@ class PatchTrainer(object):
             self.loss_history = torch.from_numpy(x['loss_history']).to(self.device)
             self.num_history = torch.from_numpy(x['num_history']).to(self.device)
 
+        print("Loaded saved weights")
+
     def train(self):
         """
         Optimize a patch to generate an adversarial example.
@@ -438,10 +442,11 @@ class PatchTrainer(object):
         checkpoints = args.checkpoints
         if checkpoints > 0:
             # loading trained checkpoints
-            args.save_path = os.path.join(args.save_path, "08_31_01-36")
+            args.save_path = os.path.join(args.save_path, "08_03_01-36")
             self.load_weights(args.save_path, checkpoints-1, best=True)
+            
+            # Remove train folder to create new train folder
             args.save_path = args.save_path.rsplit('/', 1)[0]
-            print(args.save_path)
 
         timestr = time.strftime("%m_%d-%H_%M")
         args.save_path = os.path.join(args.save_path, timestr)
@@ -485,9 +490,9 @@ class PatchTrainer(object):
                     self.sample_cameras()
                     self.sample_lights()
 
-                if args.seed_type in ['variable', 'langevin']:
-                    self.seeds_tshirt = args.seed_ratio * self.seeds_tshirt_train + (1 - args.seed_ratio) * self.seeds_tshirt_fixed
-                    self.seeds_trouser = args.seed_ratio * self.seeds_trouser_train + (1 - args.seed_ratio) * self.seeds_trouser_fixed
+                # if args.seed_type in ['variable', 'langevin']:
+                #     self.seeds_tshirt = args.seed_ratio * self.seeds_tshirt_train + (1 - args.seed_ratio) * self.seeds_tshirt_fixed
+                #     self.seeds_trouser = args.seed_ratio * self.seeds_trouser_train + (1 - args.seed_ratio) * self.seeds_trouser_fixed
 
                 tex, tex_trouser = self.update_mesh(tau=tau)
                 p_img_batch, gt = self.synthesis_image(img_batch, not args.disable_tps2d, not args.disable_tps3d)
@@ -582,9 +587,12 @@ class PatchTrainer(object):
                 print('    LEARNING RATE', self.optimizer.param_groups[0]['lr'])
                 print("\n\n")
 
+                sample_path = os.path.join(args.save_path, "train_samples")
+                if not os.path.exists(sample_path):
+                    os.makedirs(sample_path)
                 torchvision.utils.save_image(
                     p_img_batch[0, :, :, :],
-                    os.path.join(args.save_path, '{}_train_{}.png'.format(epoch, 0)))
+                    os.path.join(sample_path, '{}_{}.png'.format(epoch, 0)))
 
                 self.writer.add_scalar('epoch/total_loss', ep_loss, epoch)
                 self.writer.add_scalar('epoch/tv_loss', ep_tv_loss, epoch)
@@ -620,26 +628,10 @@ class PatchTrainer(object):
                 torch.save(self.colors, path)
                 path = args.save_path + '/' + str(epoch) + '_trouser_epoch.pth'
                 torch.save(self.trouser_point, path)
-
                 path = args.save_path + '/' + str(epoch) + '_seed_tshirt_epoch.pth'
                 torch.save(self.seeds_tshirt, path)
-
                 path = args.save_path + '/' + str(epoch) + '_seed_trouser_epoch.pth'
                 torch.save(self.seeds_trouser, path)
-
-                if args.seed_type in ['variable', 'langevin']:
-                    path = args.save_path + '/' + str(epoch) + '_seed_tshirt_train_epoch.pth'
-                    torch.save(self.seeds_tshirt_train, path)
-
-                    path = args.save_path + '/' + str(epoch) + '_seed_trouser_train_epoch.pth'
-                    torch.save(self.seeds_trouser_train, path)
-
-                    path = args.save_path + '/' + str(epoch) + '_seed_tshirt_fixed_epoch.pth'
-                    torch.save(self.seeds_tshirt_fixed, path)
-
-                    path = args.save_path + '/' + str(epoch) + '_seed_trouser_fixed_epoch.pth'
-                    torch.save(self.seeds_trouser_fixed, path)
-
                 path = args.save_path + '/' + str(epoch) + '_info.npz'
                 np.savez(path, loss_history=self.loss_history.cpu().numpy(), num_history=self.num_history.cpu().numpy(), azim=self.azim.cpu().numpy())
 
@@ -653,38 +645,16 @@ class PatchTrainer(object):
                     p_img_batch[0, :, :, :],
                     os.path.join(args.save_path, 'best_{}.png'.format(epoch)))
 
-                # path = args.save_path + '/' + 'best_' + str(epoch) + '_circle_epoch.pth'
                 path = args.save_path + '/' + 'best_circle_epoch.pth'
                 torch.save(self.tshirt_point, path)
-                # path = args.save_path + '/' + 'best_' + str(epoch) + '_color_epoch.pth'
                 path = args.save_path + '/' + 'best_color_epoch.pth'
                 torch.save(self.colors, path)
-                # path = args.save_path + '/' + 'best_' + str(epoch) + '_trouser_epoch.pth'
                 path = args.save_path + '/' + 'best_trouser_epoch.pth'
                 torch.save(self.trouser_point, path)
-
-                # path = args.save_path + '/' + 'best_' + str(epoch) + '_seed_tshirt_epoch.pth'
                 path = args.save_path + '/' + 'best_seed_tshirt_epoch.pth'
                 torch.save(self.seeds_tshirt, path)
-
-                # path = args.save_path + '/' + 'best_' + str(epoch) + '_seed_trouser_epoch.pth'
                 path = args.save_path + '/' + 'best_seed_trouser_epoch.pth'
                 torch.save(self.seeds_trouser, path)
-
-                if args.seed_type in ['variable', 'langevin']:
-                    path = args.save_path + '/' + 'best_' + str(epoch) + '_seed_tshirt_train_epoch.pth'
-                    torch.save(self.seeds_tshirt_train, path)
-
-                    path = args.save_path + '/' + 'best_' + str(epoch) + '_seed_trouser_train_epoch.pth'
-                    torch.save(self.seeds_trouser_train, path)
-
-                    path = args.save_path + '/' + 'best_' + str(epoch) + '_seed_tshirt_fixed_epoch.pth'
-                    torch.save(self.seeds_tshirt_fixed, path)
-
-                    path = args.save_path + '/' + 'best_' + str(epoch) + '_seed_trouser_fixed_epoch.pth'
-                    torch.save(self.seeds_trouser_fixed, path)
-
-                # path = args.save_path + '/' + 'best_' + str(epoch) + 'info.npz'
                 path = args.save_path + '/' + 'best_info.npz'
                 np.savez(path, loss_history=self.loss_history.cpu().numpy(), num_history=self.num_history.cpu().numpy(), azim=self.azim.cpu().numpy())               
 
