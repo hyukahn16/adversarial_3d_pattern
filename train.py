@@ -569,12 +569,9 @@ class PatchTrainer(object):
                 print('LEARNING RATE', self.optimizer.param_groups[0]['lr'])
                 print("\n\n")
 
-                for i in range(len(p_img_batch)):
-                    if i > 2:
-                        break
-                    torchvision.utils.save_image(
-                        p_img_batch[i, :, :, :],
-                        os.path.join(args.save_path, 'train_{}_{}.png'.format(epoch, i)))
+                torchvision.utils.save_image(
+                    p_img_batch[0, :, :, :],
+                    os.path.join(args.save_path, 'train_{}_{}.png'.format(epoch, 0)))
 
                 self.writer.add_scalar('epoch/total_loss', ep_loss, epoch)
                 self.writer.add_scalar('epoch/tv_loss', ep_tv_loss, epoch)
