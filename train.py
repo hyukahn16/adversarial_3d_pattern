@@ -570,6 +570,8 @@ class PatchTrainer(object):
                 print("\n\n")
 
                 for i in range(len(p_img_batch)):
+                    if i > 2:
+                        break
                     torchvision.utils.save_image(
                         p_img_batch[i, :, :, :],
                         os.path.join(args.save_path, 'train_{}_{}.png'.format(epoch, i)))
@@ -843,8 +845,8 @@ if __name__ == '__main__':
     parser.add_argument("--blur", type=float, default=1, help='')
     parser.add_argument("--like", type=float, default=1, help='')
     parser.add_argument("--ctrl", type=float, default=1, help='')
-    parser.add_argument("--num_points_tshirt", type=int, default=60, help='')
-    parser.add_argument("--num_points_trouser", type=int, default=60, help='')
+    parser.add_argument("--num_points_tshirt", type=int, default=100, help='')
+    parser.add_argument("--num_points_trouser", type=int, default=100, help='')
     parser.add_argument("--arch", type=str, default="yolov3")
     parser.add_argument("--cdist", type=float, default=0, help='')
     parser.add_argument("--seed_type", default='fixed', help='fixed, random, variable, langevin')
