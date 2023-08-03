@@ -434,14 +434,14 @@ class PatchTrainer(object):
 
         checkpoints = args.checkpoints
         if checkpoints > 0:
-            # loading train checkpoints
+            # loading trained checkpoints
             args.save_path = os.path.join(args.save_path, "08_31_01-36")
-            self.load_weights(args.save_path, checkpoints - 1)
-
-        timestr = time.strftime("%m_%d-%H_%M")
-        args.save_path = os.path.join(args.save_path, timestr)
-        if not os.path.exists(args.save_path):
-            os.makedirs(args.save_path)
+            self.load_weights(args.save_path, checkpoints - 1, best=True)
+        else:
+            timestr = time.strftime("%m_%d-%H_%M")
+            args.save_path = os.path.join(args.save_path, timestr)
+            if not os.path.exists(args.save_path):
+                os.makedirs(args.save_path)
 
         print("Starting training epochs...")
         best_det_loss = 1.0
@@ -840,7 +840,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=0.001, help='')
     parser.add_argument('--lr_seed', type=float, default=0.01, help='')
     parser.add_argument('--nepoch', type=int, default=100, help='')
-    parser.add_argument('--checkpoints', type=int, default=0, help='')
+    parser.add_argument('--checkpoints', type=int, default=1, help='')
     parser.add_argument('--batch_size', type=int, default=4, help='')
     parser.add_argument('--save_path', default='results/', help='')
     parser.add_argument("--alpha", type=float, default=10, help='')
