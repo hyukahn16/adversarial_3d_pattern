@@ -385,6 +385,9 @@ class PatchTrainer(object):
         return tex, tex_trouser
 
     def load_weights(self, save_path, epoch, best=True):
+        if not os.path.exists(args.save_path):
+            return
+
         if best:
             save_path = os.path.join(save_path, "best")
         else:
@@ -418,7 +421,7 @@ class PatchTrainer(object):
         #     path = save_path + '/' + str(epoch) + '_seed_trouser_fixed_epoch.pth'
         #     self.seeds_trouser_fixed.data = torch.load(path, map_location='cpu').to(self.device)
 
-        path = save_path + 'info.npz'
+        path = save_path + '_info.npz'
         if os.path.exists(path):
             x = np.load(path)
             self.loss_history = torch.from_numpy(x['loss_history']).to(self.device)
@@ -436,12 +439,14 @@ class PatchTrainer(object):
         if checkpoints > 0:
             # loading trained checkpoints
             args.save_path = os.path.join(args.save_path, "08_31_01-36")
-            self.load_weights(args.save_path, checkpoints - 1, best=True)
-        else:
-            timestr = time.strftime("%m_%d-%H_%M")
-            args.save_path = os.path.join(args.save_path, timestr)
-            if not os.path.exists(args.save_path):
-                os.makedirs(args.save_path)
+            self.load_weights(args.save_path, checkpoints-1, best=True)
+            args.save_path = args.save_path.rsplit('/', 1)[0]
+            print(args.save_path)
+
+        timestr = time.strftime("%m_%d-%H_%M")
+        args.save_path = os.path.join(args.save_path, timestr)
+        if not os.path.exists(args.save_path):
+            os.makedirs(args.save_path)
 
         print("Starting training epochs...")
         best_det_loss = 1.0
@@ -635,7 +640,7 @@ class PatchTrainer(object):
                     path = args.save_path + '/' + str(epoch) + '_seed_trouser_fixed_epoch.pth'
                     torch.save(self.seeds_trouser_fixed, path)
 
-                path = args.save_path + '/' + str(epoch) + 'info.npz'
+                path = args.save_path + '/' + str(epoch) + '_info.npz'
                 np.savez(path, loss_history=self.loss_history.cpu().numpy(), num_history=self.num_history.cpu().numpy(), azim=self.azim.cpu().numpy())
 
             # Save pattern with BEST attack rate
@@ -840,7 +845,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=0.001, help='')
     parser.add_argument('--lr_seed', type=float, default=0.01, help='')
     parser.add_argument('--nepoch', type=int, default=100, help='')
-    parser.add_argument('--checkpoints', type=int, default=1, help='')
+    parser.add_argument('--checkpoints', type=int, default=0, help='')
     parser.add_argument('--batch_size', type=int, default=4, help='')
     parser.add_argument('--save_path', default='results/', help='')
     parser.add_argument("--alpha", type=float, default=10, help='')
