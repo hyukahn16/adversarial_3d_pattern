@@ -446,6 +446,8 @@ class PatchTrainer(object):
 
             # Remove train folder to create new train folder
             args.save_path = args.save_path.rsplit('/', 1)[0]
+        else:
+            print("Starting new pattern training.")
 
         timestr = time.strftime("%m_%d-%H_%M")
         args.save_path = os.path.join(args.save_path, timestr)
@@ -812,7 +814,7 @@ if __name__ == '__main__':
     parser.add_argument('--device', default='cuda:0', help='')
     parser.add_argument('--lr', type=float, default=0.001, help='')
     parser.add_argument('--lr_seed', type=float, default=0.01, help='')
-    parser.add_argument('--nepoch', type=int, default=100, help='')
+    parser.add_argument('--nepoch', type=int, default=200, help='')
     parser.add_argument('--checkpoints', type=int, default=0, help='')
     parser.add_argument('--batch_size', type=int, default=4, help='')
     parser.add_argument('--save_path', default='results/', help='')
