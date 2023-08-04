@@ -148,7 +148,7 @@ class PatchTrainer(object):
         self.tshirt_point = torch.rand([num_colors, args.num_points_tshirt, 3], requires_grad=True, device=device)
         self.trouser_point = torch.rand([num_colors, args.num_points_trouser, 3], requires_grad=True, device=device)
         # self.colors = torch.load("./data/army_colors_9.pth").float().to(device)
-        self.colors = torch.load(os.path.join(".data", args.colors_pth)).float().to(device)
+        self.colors = torch.load(os.path.join(".data", args.color_pth)).float().to(device)
         self.mesh_man = load_objs_as_meshes([obj_filename_man], device=device) # Returns new Meshes object
         self.mesh_tshirt = load_objs_as_meshes([obj_filename_tshirt], device=device)
         self.mesh_trouser = load_objs_as_meshes([obj_filename_trouser], device=device)
