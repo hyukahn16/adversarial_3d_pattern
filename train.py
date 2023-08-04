@@ -450,6 +450,8 @@ class PatchTrainer(object):
             print("Starting new pattern training.")
 
         timestr = time.strftime("%m_%d-%H_%M")
+        with open(timestr + ".txt", "w") as info_f:
+            info_f.write("Train info:", args)
         args.save_path = os.path.join(args.save_path, timestr)
         if not os.path.exists(args.save_path):
             os.makedirs(args.save_path)
@@ -658,6 +660,7 @@ class PatchTrainer(object):
                 path = args.save_path + '/' + 'best_info.npz'
                 np.savez(path, loss_history=self.loss_history.cpu().numpy(), num_history=self.num_history.cpu().numpy(), azim=self.azim.cpu().numpy())               
 
+            print("")
             # Evaluate training
             # if (epoch + 1) % 300 == 0:
             #     self.update_mesh(type='determinate')
@@ -825,8 +828,8 @@ if __name__ == '__main__':
     parser.add_argument("--blur", type=float, default=1, help='')
     parser.add_argument("--like", type=float, default=1, help='')
     parser.add_argument("--ctrl", type=float, default=1, help='')
-    parser.add_argument("--num_points_tshirt", type=int, default=100, help='')
-    parser.add_argument("--num_points_trouser", type=int, default=100, help='')
+    parser.add_argument("--num_points_tshirt", type=int, default=60, help='')
+    parser.add_argument("--num_points_trouser", type=int, default=60, help='')
     parser.add_argument("--arch", type=str, default="yolov3")
     parser.add_argument("--cdist", type=float, default=0, help='')
     parser.add_argument("--seed_type", default='fixed', help='fixed, random, variable, langevin')
@@ -863,6 +866,7 @@ if __name__ == '__main__':
     torch.backends.cudnn.allow_tf32 = False
 
     os.environ['TZ'] = 'Asia/Seoul'
+    time.tzset()
 
     print("Train info:", args)
     trainer = PatchTrainer(args)
