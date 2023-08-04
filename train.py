@@ -451,14 +451,14 @@ class PatchTrainer(object):
 
         timestr = time.strftime("%m_%d-%H_%M")
         with open(timestr + ".txt", "w") as info_f:
-            info_f.write("Train info:", args)
+            info_f.write(args)
         args.save_path = os.path.join(args.save_path, timestr)
         if not os.path.exists(args.save_path):
             os.makedirs(args.save_path)
 
         print("Starting training epochs...\n")
         best_det_loss = 1.0
-        for epoch in tqdm(range(checkpoints, args.nepoch), initial=checkpoints):
+        for epoch in tqdm(range(checkpoints, checkpoints+args.nepoch), initial=checkpoints):
             et0 = time.time()
             ep_det_loss = 0
             ep_loss = 0
@@ -560,7 +560,6 @@ class PatchTrainer(object):
                             s.data.clamp_(args.clamp_shift, 1 - args.clamp_shift)
                 # t4 = time.time()
                 self.tshirt_point.data = self.tshirt_point.data.clamp(0, 1)
-                self.colors.data = self.colors.data.clamp(0, 1)
                 self.trouser_point.data = self.trouser_point.data.clamp(0, 1)
 
                 # if i_batch % 10 == 0:
