@@ -450,7 +450,7 @@ class PatchTrainer(object):
             print("Starting new pattern training.")
 
         timestr = time.strftime("%m_%d-%H_%M")
-        with open(timestr + ".txt", "w") as info_f:
+        with open(os.path.join(args.save_path, timestr + ".txt"), "w") as info_f:
             info_f.write(str(args))
         args.save_path = os.path.join(args.save_path, timestr)
         if not os.path.exists(args.save_path):
