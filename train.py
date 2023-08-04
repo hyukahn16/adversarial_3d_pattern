@@ -860,6 +860,8 @@ if __name__ == '__main__':
     torch.backends.cuda.matmul.allow_tf32 = False
     torch.backends.cudnn.allow_tf32 = False
 
+    os.environ['TZ'] = 'Asia/Seoul'
+
     print("Train info:", args)
     trainer = PatchTrainer(args)
     print("Created PatchTrainer...")
