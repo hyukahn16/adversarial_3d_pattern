@@ -195,8 +195,6 @@ def prob_fix_color(original_circles, coordinates, colors, fig_size_h, fig_size_w
     dist_sum = torch.zeros([colors.shape[0],fig_size_h,fig_size_w]).to(coordinates.device)
     for color_idx in range(colors.shape[0]):
         dist = torch.norm(coordinates-circles[color_idx,:,:2],dim=-1)
-        # dist = torch.norm(coordinates-circles[color_idx,:,:2],dim=-1)
-        # dist = dist / (circles[color_idx,:,2]+1)
         dist_sum[color_idx] = torch.exp(-dist/blur).sum(dim=-1)
         # print(dist_sum[color_idx])
     # print(dist_sum[0])
