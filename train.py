@@ -451,7 +451,7 @@ class PatchTrainer(object):
 
         timestr = time.strftime("%m_%d-%H_%M")
         with open(timestr + ".txt", "w") as info_f:
-            info_f.write(args)
+            info_f.write(str(args))
         args.save_path = os.path.join(args.save_path, timestr)
         if not os.path.exists(args.save_path):
             os.makedirs(args.save_path)
