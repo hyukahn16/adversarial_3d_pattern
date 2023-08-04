@@ -147,8 +147,8 @@ class PatchTrainer(object):
         self.coordinates_t = torch.stack(torch.meshgrid(torch.arange(h_t), torch.arange(w_t)), -1).to(device)
         self.tshirt_point = torch.rand([num_colors, args.num_points_tshirt, 3], requires_grad=True, device=device)
         self.trouser_point = torch.rand([num_colors, args.num_points_trouser, 3], requires_grad=True, device=device)
-        # self.colors = torch.load("./data/camouflage4.pth").float().to(device)
-        self.colors = torch.load("./data/army_colors_9.pth").float().to(device)
+        # self.colors = torch.load("./data/army_colors_9.pth").float().to(device)
+        self.colors = torch.load(os.path.join(".data", args.colors_pth)).float().to(device)
         self.mesh_man = load_objs_as_meshes([obj_filename_man], device=device) # Returns new Meshes object
         self.mesh_tshirt = load_objs_as_meshes([obj_filename_tshirt], device=device)
         self.mesh_trouser = load_objs_as_meshes([obj_filename_trouser], device=device)
@@ -855,6 +855,8 @@ if __name__ == '__main__':
     parser.add_argument("--anneal", default=False, action='store_true', help='')
     parser.add_argument("--anneal_init", type=float, default=5.0, help='')
     parser.add_argument("--anneal_alpha", type=float, default=3.0, help='')
+
+    parser.add_argument("--color_pth", default="army_colors.pth", help='.pth file for pattern colors')
 
 
     args = parser.parse_args()
