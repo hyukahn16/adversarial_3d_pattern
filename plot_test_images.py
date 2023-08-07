@@ -83,7 +83,6 @@ def plot_labels_on_images(dir, labels_dir):
       label_dir = os.path.join(labels_dir, img_name.rsplit(".", 1)[0] + ".txt")
       img = Image.open(img_dir).convert('RGB')
       with open(label_dir) as label:
-          print(label_dir)
           boxes = label.readlines()
           if not boxes:
             continue
