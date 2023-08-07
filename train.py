@@ -875,12 +875,19 @@ if __name__ == '__main__':
     if not args.test:
         trainer.train()
     else:
-        args.save_path = "results_paper/yolov3_07"
+        # args.save_path = "results_paper/yolov3_07"
+        args.save_path = os.path.join(args.save_path, "08_04-15_13")
         epoch = 599
         # epoch = args.checkpoints - 1
-        trainer.load_weights(args.save_path, epoch)
+        trainer.load_weights(args.save_path, epoch, best=True)
         trainer.update_mesh(type='determinate')
-        precision, recall, avg, confs, thetas = trainer.test(conf_thresh=0.01, iou_thresh=args.test_iou, angle_sample=37, use_tps2d=not args.disable_test_tps2d, use_tps3d=not args.disable_test_tps3d, mode=args.test_mode)
+        precision, recall, avg, confs, thetas = trainer.test(
+            conf_thresh=0.01,
+            iou_thresh=args.test_iou,
+            angle_sample=37,
+            use_tps2d=not args.disable_test_tps2d,
+            use_tps3d=not args.disable_test_tps3d,
+            mode=args.test_mode)
         # info = [precision, recall, avg, confs]
         # path = args.save_path + '/' + str(epoch) + 'test_results_tps'
         # path = path + '_iou' + str(args.test_iou).replace('.', '') + '_' + args.test_mode + args.test_suffix
