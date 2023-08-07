@@ -9,21 +9,6 @@ from torchvision import transforms
 from torchvision.ops import box_iou
 from tqdm import tqdm
 
-device = "cuda:0"
-model = YOLOv3Darknet().eval().to(device)
-model.load_darknet_weights('arch/weights/yolov3.weights')
-
-conf_thresh = 0.5 # FIXME
-architecture = "yolov3"
-
-dir = "./test_images" # where the testing images are
-if not os.path.exists(dir):
-  print("Created ./test_images directory")
-  os.makedirs(dir)
-labels_dir = os.path.join(dir, "yolo-labels") # where the testing images labels are
-if not os.path.exists(labels_dir):
-   os.makedirs(labels_dir)
-
 
 # 1. GET AND SAVE LABELS FROM YOLO
 def save_yolo_labels(device, model, architecture, conf_thresh, dir, labels_dir):
@@ -109,6 +94,31 @@ def plot_labels_on_images(dir, labels_dir):
   
   print("\nFinished Plotting Labels on Images.")
 
+###############################################################################
+###############################################################################
+###############################################################################
 # MAIN
-# save_yolo_labels(device, model, architecture, conf_thresh, dir, labels_dir)
+device = "cuda:0"
+model = YOLOv3Darknet().eval().to(device)
+model.load_darknet_weights('arch/weights/yolov3.weights')
+
+conf_thresh = 0.5 # FIXME
+architecture = "yolov3"
+
+dir = "./test_images" # where the testing images are
+imgs_dir = "08_04-15_13"
+imgs_dir = os.path.join(dir, imgs_dir)
+
+if not os.path.exists(dir):
+   os.makedirs(dir)
+   print("Created {} directory".format(dir))
+if not os.path.exists(imgs_dir):
+  os.makedirs(imgs_dir)
+  print("Created {} directory".format(imgs_dir))
+
+labels_dir = os.path.join(imgs_dir, "yolo-labels") # where the testing images labels are
+if not os.path.exists(labels_dir):
+  os.makedirs(labels_dir)
+
+save_yolo_labels(device, model, architecture, conf_thresh, dir, labels_dir)
 plot_labels_on_images(dir, labels_dir)
