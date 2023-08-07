@@ -695,119 +695,139 @@ class PatchTrainer(object):
                     self.sample_cameras(theta=theta)
                     p_img_batch, gt = self.synthesis_image(img_batch, use_tps2d, use_tps3d)
 
-                    # Save testing images for future 
-                    for i in range(p_img_batch.size(0)):
-                        torchvision.utils.save_image(
-                            p_img_batch[i, :, :, :],
-                            './test_images/{}_{}_{}.png'.format(i_batch, theta, i)
-                            )
-        return None, None, None, None, None
+                    normalize = True
+                    if self.args.arch == "deformable-detr" and normalize:
+                        normalize = transforms.Normalize([0.485, 0.456, 0.406],[0.229, 0.224, 0.225])
+                        p_img_batch = normalize(p_img_batch)
 
-        #             normalize = True
-        #             if self.args.arch == "deformable-detr" and normalize:
-        #                 normalize = transforms.Normalize([0.485, 0.456, 0.406],[0.229, 0.224, 0.225])
-        #                 p_img_batch = normalize(p_img_batch)
+                    output = self.model(p_img_batch)
+                    total += len(p_img_batch)  # since 1 image only has 1 gt, so the total # gt is just = the total # images
+                    pos = []
+                    # for i, boxes in enumerate(output):  # for each image
+                    conf_thresh = 0.0 if self.args.arch in ['rcnn'] else 0.1
+                    person_cls = 0
+                    output = utils.get_region_boxes_general(output, self.model, conf_thresh=conf_thresh, name=self.args.arch)
 
-        #             output = self.model(p_img_batch)
-        #             total += len(p_img_batch)  # since 1 image only has 1 gt, so the total # gt is just = the total # images
-        #             pos = []
-        #             # for i, boxes in enumerate(output):  # for each image
-        #             conf_thresh = 0.0 if self.args.arch in ['rcnn'] else 0.1
-        #             person_cls = 0
-        #             output = utils.get_region_boxes_general(output, self.model, conf_thresh=conf_thresh, name=self.args.arch)
+                    for i, boxes in enumerate(output):
+                        if len(boxes) == 0:
+                            pos.append((0.0, False))
+                            continue
+                        assert boxes.shape[1] == 7
+                        boxes = utils.nms(boxes, nms_thresh=args.test_nms_thresh)
+                        w1 = boxes[..., 0] - boxes[..., 2] / 2
+                        h1 = boxes[..., 1] - boxes[..., 3] / 2
+                        w2 = boxes[..., 0] + boxes[..., 2] / 2
+                        h2 = boxes[..., 1] + boxes[..., 3] / 2
+                        bboxes = torch.stack([w1, h1, w2, h2], dim=-1)
+                        bboxes = bboxes.view(-1, 4).detach() * self.img_size
+                        scores = boxes[..., 4]
+                        labels = boxes[..., 6]
 
-        #             for i, boxes in enumerate(output):
-        #                 if len(boxes) == 0:
-        #                     pos.append((0.0, False))
-        #                     continue
-        #                 assert boxes.shape[1] == 7
-        #                 boxes = utils.nms(boxes, nms_thresh=args.test_nms_thresh)
-        #                 w1 = boxes[..., 0] - boxes[..., 2] / 2
-        #                 h1 = boxes[..., 1] - boxes[..., 3] / 2
-        #                 w2 = boxes[..., 0] + boxes[..., 2] / 2
-        #                 h2 = boxes[..., 1] + boxes[..., 3] / 2
-        #                 bboxes = torch.stack([w1, h1, w2, h2], dim=-1)
-        #                 bboxes = bboxes.view(-1, 4).detach() * self.img_size
-        #                 scores = boxes[..., 4]
-        #                 labels = boxes[..., 6]
+                        if (len(bboxes) == 0):
+                            pos.append((0.0, False))
+                            continue
+                        scores_ordered, inds = scores.sort(descending=True)
+                        scores = scores_ordered
+                        bboxes = bboxes[inds]
+                        labels = labels[inds]
+                        inds_th = scores > conf_thresh
+                        scores = scores[inds_th]
+                        bboxes = bboxes[inds_th]
+                        labels = labels[inds_th]
 
-        #                 if (len(bboxes) == 0):
-        #                     pos.append((0.0, False))
-        #                     continue
-        #                 scores_ordered, inds = scores.sort(descending=True)
-        #                 scores = scores_ordered
-        #                 bboxes = bboxes[inds]
-        #                 labels = labels[inds]
-        #                 inds_th = scores > conf_thresh
-        #                 scores = scores[inds_th]
-        #                 bboxes = bboxes[inds_th]
-        #                 labels = labels[inds_th]
+                        if mode == 'person':
+                            inds_label = labels == person_cls
+                            scores = scores[inds_label]
+                            bboxes = bboxes[inds_label]
+                            labels = labels[inds_label]
+                        elif mode == 'all':
+                            pass
+                        else:
+                            raise ValueError
 
-        #                 if mode == 'person':
-        #                     inds_label = labels == person_cls
-        #                     scores = scores[inds_label]
-        #                     bboxes = bboxes[inds_label]
-        #                     labels = labels[inds_label]
-        #                 elif mode == 'all':
-        #                     pass
-        #                 else:
-        #                     raise ValueError
-
-        #                 if (len(bboxes) == 0):
-        #                     pos.append((0.0, False))
-        #                     continue
-        #                 ious = torchvision.ops.box_iou(bboxes.data,
-        #                                                gt[i].unsqueeze(0))  # get iou of all boxes in this image
-        #                 noids = (ious.squeeze(-1) > iou_thresh).nonzero()
-        #                 if noids.shape[0] == 0:
-        #                     pos.append((0.0, False))
-        #                 else:
-        #                     noid = noids.min()
-        #                     if labels[noid] == person_cls:
-        #                         pos.append((scores[noid].item(), True))
-        #                     else:
-        #                         pos.append((scores[noid].item(), False))
-        #             positives.extend(pos)
-        #             confs[it].extend([p[0] if p[1] else 0.0 for p in pos])
+                        if (len(bboxes) == 0):
+                            pos.append((0.0, False))
+                            continue
+                        ious = torchvision.ops.box_iou(bboxes.data,
+                                                       gt[i].unsqueeze(0))  # get iou of all boxes in this image
+                        noids = (ious.squeeze(-1) > iou_thresh).nonzero()
+                        if noids.shape[0] == 0:
+                            pos.append((0.0, False))
+                        else:
+                            noid = noids.min()
+                            if labels[noid] == person_cls:
+                                pos.append((scores[noid].item(), True))
+                            else:
+                                pos.append((scores[noid].item(), False))
+                    positives.extend(pos)
+                    confs[it].extend([p[0] if p[1] else 0.0 for p in pos])
        
 
-        # positives = sorted(positives, key=lambda d: d[0], reverse=True)
-        # confs = np.array(confs)
-        # tps = []
-        # fps = []
-        # tp_counter = 0
-        # fp_counter = 0
-        # # all matches in dataset
-        # for pos in positives:
-        #     if pos[1]:
-        #         tp_counter += 1
-        #     else:
-        #         fp_counter += 1
-        #     tps.append(tp_counter)
-        #     fps.append(fp_counter)
-        # precision = []
-        # recall = []
-        # for tp, fp in zip(tps, fps):
-        #     recall.append(tp / total)
-        #     if tp == 0:
-        #         precision.append(0.0)
-        #     else:
-        #         precision.append(tp / (fp + tp))
+        positives = sorted(positives, key=lambda d: d[0], reverse=True)
+        confs = np.array(confs)
+        tps = []
+        fps = []
+        tp_counter = 0
+        fp_counter = 0
+        # all matches in dataset
+        for pos in positives:
+            if pos[1]:
+                tp_counter += 1
+            else:
+                fp_counter += 1
+            tps.append(tp_counter)
+            fps.append(fp_counter)
+        precision = []
+        recall = []
+        for tp, fp in zip(tps, fps):
+            recall.append(tp / total)
+            if tp == 0:
+                precision.append(0.0)
+            else:
+                precision.append(tp / (fp + tp))
 
-        # if len(precision) > 1 and len(recall) > 1:
-        #     p = np.array(precision)
-        #     r = np.array(recall)
-        #     p_start = p[np.argmin(r)]
-        #     samples = np.linspace(0., 1., num_of_samples)
-        #     interpolated = scipy.interpolate.interp1d(r, p, fill_value=(p_start, 0.), bounds_error=False)(samples)
-        #     avg = sum(interpolated) / len(interpolated)
-        # elif len(precision) > 0 and len(recall) > 0:
-        #     # 1 point on PR: AP is box between (0,0) and (p,r)
-        #     avg = precision[0] * recall[0]
-        # else:
-        #     avg = float('nan')
+        if len(precision) > 1 and len(recall) > 1:
+            p = np.array(precision)
+            r = np.array(recall)
+            p_start = p[np.argmin(r)]
+            samples = np.linspace(0., 1., num_of_samples)
+            interpolated = scipy.interpolate.interp1d(r, p, fill_value=(p_start, 0.), bounds_error=False)(samples)
+            avg = sum(interpolated) / len(interpolated)
+        elif len(precision) > 0 and len(recall) > 0:
+            # 1 point on PR: AP is box between (0,0) and (p,r)
+            avg = precision[0] * recall[0]
+        else:
+            avg = float('nan')
 
-        # return precision, recall, avg, confs, thetas_list
+        return precision, recall, avg, confs, thetas_list
+
+    def generate_test_images(self, angle_sample=37, use_tps2d=True, use_tps3d=True):
+        weights_dir = "08_04-15_13"
+        args.save_path = os.path.join(args.save_path, weights_dir)
+        load_epoch = 599
+        use_best = True
+        self.load_weights(args.save_path, load_epoch, best=use_best)
+        self.update_mesh(type='determinate')
+        print("Loaded weights")
+
+        print("Generating test images...")
+        test_dir = os.path.join("test_images", weights_dir)
+        thetas_list = np.linspace(-180, 180, angle_sample)
+        self.sample_lights(r=0.1)
+
+        with torch.no_grad():
+            for i_batch, img_batch in tqdm(enumerate(self.test_loader), total=len(self.test_loader), position=0):
+                img_batch = img_batch.to(self.device)
+                for it, theta in enumerate(thetas_list):
+                    self.sample_cameras(theta=theta)
+                    p_img_batch, gt = self.synthesis_image(img_batch, use_tps2d, use_tps3d)
+
+                    # Save testing images for future 
+                    for i in range(p_img_batch.size(0)):
+                        img_name = "{}_{}_{}.png".format(i_batch, theta, i)
+                        img_dir = os.path.join(test_dir, img_name)
+                        torchvision.utils.save_image(p_img_batch[i, :, :, :], img_dir)
+        return None, None, None, None, None        
 
 
 if __name__ == '__main__':
@@ -847,6 +867,7 @@ if __name__ == '__main__':
     parser.add_argument("--seed_ratio", default=1.0, type=float, help='The ratio of trainable part when seed type is variable')
     parser.add_argument("--loss_type", default='max_iou', help='max_iou, max_conf, softplus_max, softplus_sum')
     parser.add_argument("--test", default=False, action='store_true', help='')
+    parser.add_argument("--gen_test", default=False, action='store_true', help='')
     parser.add_argument("--test_iou", type=float, default=0.1, help='')
     parser.add_argument("--test_nms_thresh", type=float, default=1.0, help='')
     parser.add_argument("--test_mode", default='person', help='person, all')
@@ -872,13 +893,12 @@ if __name__ == '__main__':
     print("Train info:", args)
     trainer = PatchTrainer(args)
     print("Created PatchTrainer...")
-    if not args.test:
+    if not args.test and not args.gen_test:
         trainer.train()
-    else:
-        # args.save_path = "results_paper/yolov3_07"
-        args.save_path = os.path.join(args.save_path, "08_04-15_13")
-        epoch = 599
-        # epoch = args.checkpoints - 1
+    elif args.test and not args.gen_test:
+        args.save_path = "results_paper/yolov3_07"
+        # args.save_path = os.path.join(args.save_path, "08_04-15_13")
+        epoch = args.checkpoints - 1
         trainer.load_weights(args.save_path, epoch, best=True)
         trainer.update_mesh(type='determinate')
         precision, recall, avg, confs, thetas = trainer.test(
@@ -888,9 +908,16 @@ if __name__ == '__main__':
             use_tps2d=not args.disable_test_tps2d,
             use_tps3d=not args.disable_test_tps3d,
             mode=args.test_mode)
-        # info = [precision, recall, avg, confs]
-        # path = args.save_path + '/' + str(epoch) + 'test_results_tps'
-        # path = path + '_iou' + str(args.test_iou).replace('.', '') + '_' + args.test_mode + args.test_suffix
-        # path = path + '.npz'
-        # np.savez(path, thetas=thetas, info=info)
+        info = [precision, recall, avg, confs]
+        path = args.save_path + '/' + str(epoch) + 'test_results_tps'
+        path = path + '_iou' + str(args.test_iou).replace('.', '') + '_' + args.test_mode + args.test_suffix
+        path = path + '.npz'
+        np.savez(path, thetas=thetas, info=info)
+    elif args.gen_test:
+        trainer.generate_test_images(
+            angle_sample=37,
+            use_tps2d=not args.disable_test_tps2d, 
+            use_tps3d=not args.disable_test_tps3d, 
+            mode=args.test_mode)
+
 
