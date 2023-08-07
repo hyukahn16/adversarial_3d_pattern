@@ -120,5 +120,5 @@ labels_dir = os.path.join(imgs_dir, "yolo-labels") # where the testing images la
 if not os.path.exists(labels_dir):
   os.makedirs(labels_dir)
 
-save_yolo_labels(device, model, architecture, conf_thresh, dir, labels_dir)
-plot_labels_on_images(dir, labels_dir)
+save_yolo_labels(device, model, architecture, conf_thresh, imgs_dir, labels_dir)
+plot_labels_on_images(imgs_dir, labels_dir)
