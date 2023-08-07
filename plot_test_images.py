@@ -72,7 +72,7 @@ def plot_labels_on_images(dir, labels_dir):
   # Make sure plot saving folder exists
   if not os.path.exists(plot_dir):
       os.makedirs(plot_dir)
-      print("Created {} directory".format(plot_dir))
+      print("Created \"{}\" directory".format(plot_dir))
       
 
   # Find all patched image names
@@ -107,6 +107,7 @@ architecture = "yolov3"
 
 dir = "./test_images" # where the testing images are
 imgs_dir = "08_04-15_13"
+# imgs_dir = "original_test_images"
 imgs_dir = os.path.join(dir, imgs_dir)
 
 if not os.path.exists(dir):
@@ -120,5 +121,5 @@ labels_dir = os.path.join(imgs_dir, "yolo-labels") # where the testing images la
 if not os.path.exists(labels_dir):
   os.makedirs(labels_dir)
 
-save_yolo_labels(device, model, architecture, conf_thresh, imgs_dir, labels_dir)
+# save_yolo_labels(device, model, architecture, conf_thresh, imgs_dir, labels_dir)
 plot_labels_on_images(imgs_dir, labels_dir)
