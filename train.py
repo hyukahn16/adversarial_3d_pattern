@@ -917,7 +917,6 @@ if __name__ == '__main__':
         trainer.generate_test_images(
             angle_sample=37,
             use_tps2d=not args.disable_test_tps2d, 
-            use_tps3d=not args.disable_test_tps3d, 
-            mode=args.test_mode)
+            use_tps3d=not args.disable_test_tps3d)
 
 
