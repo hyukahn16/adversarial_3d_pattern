@@ -71,7 +71,7 @@ def plot_labels_on_images(dir, labels_dir):
   plot_dir = os.path.join(dir, "plotted") # where to save plotted images
   # Make sure plot saving folder exists
   if not os.path.exists(plot_dir):
-      os.makedir(plot_dir)
+      os.makedirs(plot_dir)
       print("Created {} directory".format(plot_dir))
       
 
