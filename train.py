@@ -812,6 +812,8 @@ class PatchTrainer(object):
 
         print("Generating test images...")
         test_dir = os.path.join("test_images", weights_dir)
+        if not os.path.exists(test_dir):
+            os.makedirs(test_dir)
         thetas_list = np.linspace(-180, 180, angle_sample)
         self.sample_lights(r=0.1)
 
