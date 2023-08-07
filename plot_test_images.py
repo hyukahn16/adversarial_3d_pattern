@@ -61,7 +61,7 @@ def save_yolo_labels(device, model, architecture, conf_thresh, dir, labels_dir):
           label_f.write(f'{labels[i]} {x_centers[i]} {y_centers[i]} {widths[i]} {heights[i]} {det_confs[i]}\n') 
       label_f.close()
 
-  print("\nFinished Generating YOLO Labels.")
+  print("Finished Generating YOLO Labels.\n")
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -69,14 +69,13 @@ def save_yolo_labels(device, model, architecture, conf_thresh, dir, labels_dir):
 # 2. PLOT LABELS
 def plot_labels_on_images(dir, labels_dir):
   plot_dir = os.path.join(dir, "plotted") # where to save plotted images
+  # Make sure plot saving folder exists
+  if not os.path.exists(plot_dir):
+      os.mkdir(plot_dir)
 
   # Find all patched image names
   patched_imgs = [f for f in os.listdir(dir)
               if os.path.isfile(os.path.join(dir, f))]
-
-  # Make sure plot saving folder exists
-  if not os.path.exists(plot_dir):
-      os.mkdir(plot_dir)
 
   # Draw boxes
   for _, img_name in tqdm(enumerate(patched_imgs), total=len(patched_imgs)):
@@ -84,6 +83,7 @@ def plot_labels_on_images(dir, labels_dir):
       label_dir = os.path.join(labels_dir, img_name.rsplit(".", 1)[0] + ".txt")
       img = Image.open(img_dir).convert('RGB')
       with open(label_dir) as label:
+          print(label_dir)
           boxes = label.readlines()
           if not boxes:
             continue
@@ -91,7 +91,7 @@ def plot_labels_on_images(dir, labels_dir):
           boxes = [[b[1], b[2], b[3], b[4], b[5], b[0]] for b in boxes]
           plot_boxes(img, boxes, savename=os.path.join(plot_dir, img_name))
   
-  print("\nFinished Plotting Labels on Images.")
+  print("Finished Plotting Labels on Images.")
 
 ###############################################################################
 ###############################################################################
