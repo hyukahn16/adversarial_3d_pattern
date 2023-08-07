@@ -824,7 +824,7 @@ class PatchTrainer(object):
 
                     # Save testing images for future 
                     for i in range(p_img_batch.size(0)):
-                        img_name = "{}_{}_{}.png".format(i_batch, theta, i)
+                        img_name = "{}_{}_{}.png".format(i_batch, int(theta), i)
                         img_dir = os.path.join(test_dir, img_name)
                         torchvision.utils.save_image(p_img_batch[i, :, :, :], img_dir)
         return None, None, None, None, None        
