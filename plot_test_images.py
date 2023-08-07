@@ -37,7 +37,6 @@ def save_yolo_labels(device, model, architecture, conf_thresh, dir, labels_dir):
       # Create and open label file
       label_file_name = img_f.rsplit(".", 1)[0] + ".txt"
       label_file_dir = os.path.join(labels_dir, label_file_name)
-      print(img_f)
       label_f = open(label_file_dir, 'w') # Create and open file
 
       # Skip this image if no boxes were predicted
