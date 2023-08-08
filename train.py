@@ -116,12 +116,13 @@ class PatchTrainer(object):
 
         if not args.test:
             # self.train_loader = self.get_loader('/content/drive/MyDrive/shared_dataset/advcat/data/background', True)
-            self.train_loader = self.get_loader('./data/background', True)
+            args.train_dir = os.path.join("data", args.train_dir)
+            self.train_loader = self.get_loader(args.train_dir, True)
             print(f'One training epoch has {len(self.train_loader.dataset)} images')
             self.epoch_length = len(self.train_loader)
         else:
             # self.test_loader = self.get_loader('/content/drive/MyDrive/shared_dataset/advcat/data/background_test', True)
-            self.test_loader = self.get_loader('./data/background_test', True)
+            self.test_loader = self.get_loader('./data/background_test', False)
             print(f'One test epoch has {len(self.test_loader.dataset)} images')
 
         color_transform = ColorTransform('color_transform_dim6.npz')
@@ -227,7 +228,8 @@ class PatchTrainer(object):
     def get_loader(self, img_dir, shuffle=True):
         loader = torch.utils.data.DataLoader(InriaDataset(img_dir, self.img_size, shuffle=shuffle),
                                              batch_size=self.batch_size,
-                                             shuffle=True,
+                                             shuffle=shuffle,
+                                             drop_last=True,
                                              num_workers=2) # originally worker=4
         return loader
 
@@ -254,7 +256,7 @@ class PatchTrainer(object):
                 azim = azim.to(exp)
                 self.azim = (azim + azim.new(size=azim.shape).uniform_() - 0.5) * 360 / len(exp)
             else:
-                self.azim_inds = None
+                self.azim_inds = None 
                 self.azim = (torch.zeros(self.batch_size).uniform_() - 0.5) * 360
         if elev is not None:
             elev = torch.zeros(self.batch_size).fill_(elev)
@@ -689,7 +691,6 @@ class PatchTrainer(object):
         with torch.no_grad():
             j = 0
             for i_batch, img_batch in tqdm(enumerate(self.test_loader), total=len(self.test_loader), position=0):
-                # print("{} / len(self.test_loader)".format(i_batch))
                 img_batch = img_batch.to(self.device)
                 for it, theta in enumerate(thetas_list):
                     self.sample_cameras(theta=theta)
@@ -880,6 +881,7 @@ if __name__ == '__main__':
     parser.add_argument("--anneal_alpha", type=float, default=3.0, help='')
 
     parser.add_argument("--color_pth", default="army_colors.pth", help='.pth file for pattern colors')
+    parser.add_argument("--train_dir", default="background", help="folder name containing the train background files")
 
 
     args = parser.parse_args()
@@ -903,13 +905,7 @@ if __name__ == '__main__':
         epoch = args.checkpoints - 1
         trainer.load_weights(args.save_path, epoch, best=True)
         trainer.update_mesh(type='determinate')
-        precision, recall, avg, confs, thetas = trainer.test(
-            conf_thresh=0.01,
-            iou_thresh=args.test_iou,
-            angle_sample=37,
-            use_tps2d=not args.disable_test_tps2d,
-            use_tps3d=not args.disable_test_tps3d,
-            mode=args.test_mode)
+        precision, recall, avg, confs, thetas = trainer.test(conf_thresh=0.01, iou_thresh=args.test_iou, angle_sample=37, use_tps2d=not args.disable_test_tps2d, use_tps3d=not args.disable_test_tps3d, mode=args.test_mode)
         info = [precision, recall, avg, confs]
         path = args.save_path + '/' + str(epoch) + 'test_results_tps'
         path = path + '_iou' + str(args.test_iou).replace('.', '') + '_' + args.test_mode + args.test_suffix
