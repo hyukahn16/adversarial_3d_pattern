@@ -118,7 +118,8 @@ class PatchTrainer(object):
             # self.train_loader = self.get_loader('/content/drive/MyDrive/shared_dataset/advcat/data/background', True)
             args.train_dir = os.path.join("data", args.train_dir)
             self.train_loader = self.get_loader(args.train_dir, True)
-            print(f'One training epoch has {len(self.train_loader.dataset)} images')
+            num_imgs = len(self.train_loader.dataset)
+            print(f'One training epoch has {num_imgs} images - {num_imgs % 4} dropped images')
             self.epoch_length = len(self.train_loader)
         else:
             # self.test_loader = self.get_loader('/content/drive/MyDrive/shared_dataset/advcat/data/background_test', True)
