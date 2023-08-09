@@ -479,7 +479,7 @@ class PatchTrainer(object):
             #     print(self.sampler_probs)
             self.loss_history = self.loss_history / 2 + 1e-5
             self.num_history = self.num_history / 2 + 1e-5
-            if epoch % 100 == 99:
+            if epoch % 1 == 0:
                 self.optimizer.param_groups[0]['lr'] = self.optimizer.param_groups[0]['lr'] / args.lr_decay
                 self.optimizer_seed.param_groups[0]['lr'] = self.optimizer_seed.param_groups[0]['lr'] / args.lr_decay_seed
 
@@ -487,8 +487,8 @@ class PatchTrainer(object):
                 tau = np.exp(-(epoch + 1) / args.nepoch * args.anneal_alpha) * args.anneal_init
             else:
                 tau = 0.3
-
-            for i_batch, img_batch in enumerate(self.train_loader):
+            for i_batch, (img_batch, lab_batch) in tqdm(enumerate(self.train_loader), desc=f'Epoch {epoch}'):
+            # for i_batch, img_batch in enumerate(self.train_loader):
                 img_batch = img_batch.to(self.device)
                 # t0 = time.time()
                 # AG step
