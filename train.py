@@ -463,7 +463,8 @@ class PatchTrainer(object):
 
         print("Starting training epochs...\n")
         best_det_loss = 1.0
-        for epoch in tqdm(range(checkpoints, checkpoints+args.nepoch), initial=checkpoints):
+        for epoch in range(checkpoints, checkpoints+args.nepoch):
+        # for epoch in tqdm(range(checkpoints, checkpoints+args.nepoch), initial=checkpoints):
             et0 = time.time()
             ep_det_loss = 0
             ep_loss = 0
@@ -479,9 +480,6 @@ class PatchTrainer(object):
             #     print(self.sampler_probs)
             self.loss_history = self.loss_history / 2 + 1e-5
             self.num_history = self.num_history / 2 + 1e-5
-            if epoch % 1 == 0:
-                self.optimizer.param_groups[0]['lr'] = self.optimizer.param_groups[0]['lr'] / args.lr_decay
-                self.optimizer_seed.param_groups[0]['lr'] = self.optimizer_seed.param_groups[0]['lr'] / args.lr_decay_seed
 
             if args.anneal:
                 tau = np.exp(-(epoch + 1) / args.nepoch * args.anneal_alpha) * args.anneal_init
@@ -677,6 +675,10 @@ class PatchTrainer(object):
             #         path = path + '_iou' + str(iou_thresh).replace('.', '') + '_' + args.test_mode
             #         path = path + '.npz'
             #         np.savez(path, thetas=thetas, info=info)
+
+            if epoch % 1 == 0:
+                self.optimizer.param_groups[0]['lr'] = self.optimizer.param_groups[0]['lr'] / args.lr_decay
+                self.optimizer_seed.param_groups[0]['lr'] = self.optimizer_seed.param_groups[0]['lr'] / args.lr_decay_seed
 
 
     def test(self, conf_thresh, iou_thresh, num_of_samples=100, angle_sample=37, use_tps2d=True, use_tps3d=True, mode='person'):
