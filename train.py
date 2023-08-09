@@ -489,7 +489,7 @@ class PatchTrainer(object):
                 tau = 0.3
             for i_batch, img_batch in tqdm(enumerate(self.train_loader),
                                             desc=f'Epoch {epoch}',
-                                            total=len(self.train_loader) / self.batch_size):
+                                            total=len(self.train_loader)):
             # for i_batch, img_batch in enumerate(self.train_loader):
                 img_batch = img_batch.to(self.device)
                 # t0 = time.time()
