@@ -880,6 +880,9 @@ if __name__ == '__main__':
     parser.add_argument("--anneal_init", type=float, default=5.0, help='')
     parser.add_argument("--anneal_alpha", type=float, default=3.0, help='')
 
+
+    parser.add_argument("--use_best", default=False, help='Whether to load best weights')
+    parser.add_argument("--checkpoint_dir", default='', help='Loading checkpoint')
     parser.add_argument("--color_pth", default="army_colors.pth", help='.pth file for pattern colors')
     parser.add_argument("--train_dir", default="background", help="folder name containing train background files")
     parser.add_argument("--test_dir", default="background_test", help="folder name containing test background files")
