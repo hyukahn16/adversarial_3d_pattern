@@ -623,7 +623,7 @@ class PatchTrainer(object):
             #     self.writer.add_figure('maps_trouser', fig, epoch)
 
             # Save checkpoints
-            if (epoch + 1) % 20 == 0 or epoch == 0:
+            if (epoch + 1) % 1 == 0 or epoch == 0:
                 # torchvision.utils.save_image(
                 #     p_img_batch[0, :, :, :],
                 #     os.path.join(args.save_path, '{}.png'.format(epoch)))
