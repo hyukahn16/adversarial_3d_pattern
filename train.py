@@ -677,6 +677,9 @@ class PatchTrainer(object):
             #         np.savez(path, thetas=thetas, info=info)
 
             if epoch % 1 == 0:
+                # Decaying lr_decay (META-DECAY)
+                args.lr_decay -= 0.15 # Start from 1.5 and count down?
+                args.lr_decay = min(args.lr_decay, 1.1)
                 self.optimizer.param_groups[0]['lr'] = self.optimizer.param_groups[0]['lr'] / args.lr_decay
                 self.optimizer_seed.param_groups[0]['lr'] = self.optimizer_seed.param_groups[0]['lr'] / args.lr_decay_seed
 
