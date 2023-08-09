@@ -119,12 +119,14 @@ class PatchTrainer(object):
             args.train_dir = os.path.join("data", args.train_dir)
             self.train_loader = self.get_loader(args.train_dir, True)
             num_imgs = len(self.train_loader.dataset)
-            print(f'One training epoch has {num_imgs} images - {num_imgs % 4} dropped images')
+            print(f'One train epoch has {num_imgs} images - {num_imgs % 4} dropped images')
             self.epoch_length = len(self.train_loader)
         else:
             # self.test_loader = self.get_loader('/content/drive/MyDrive/shared_dataset/advcat/data/background_test', True)
-            self.test_loader = self.get_loader('./data/background_test', False)
-            print(f'One test epoch has {len(self.test_loader.dataset)} images')
+            args.test_dir = os.path.join("data", args.test_dir)
+            self.test_loader = self.get_loader(args.test_dir, False)
+            num_imgs = len(self.test_loader.dataset)
+            print(f'One test epoch has {num_imgs} images')
 
         color_transform = ColorTransform('color_transform_dim6.npz')
         self.color_transform = color_transform.to(device)
@@ -882,7 +884,8 @@ if __name__ == '__main__':
     parser.add_argument("--anneal_alpha", type=float, default=3.0, help='')
 
     parser.add_argument("--color_pth", default="army_colors.pth", help='.pth file for pattern colors')
-    parser.add_argument("--train_dir", default="background", help="folder name containing the train background files")
+    parser.add_argument("--train_dir", default="background", help="folder name containing train background files")
+    parser.add_argument("--test_dir", default="background_test", help="folder name containing test background files")
 
 
     args = parser.parse_args()
