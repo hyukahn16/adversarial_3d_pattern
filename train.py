@@ -398,6 +398,8 @@ class PatchTrainer(object):
             save_path = os.path.join(save_path, "best")
         else:
             save_path = os.path.join(save_path, str(epoch))
+        
+        print("Loading weights from {}".format(save_path))
 
         path = save_path + '_circle_epoch.pth'
         self.tshirt_point.data = torch.load(path, map_location='cpu').to(self.device)
@@ -413,19 +415,6 @@ class PatchTrainer(object):
 
         path = save_path + '_seed_trouser_epoch.pth'
         self.seeds_trouser = torch.load(path, map_location='cpu').to(self.device)
-
-        # if self.args.seed_type in ['variable', 'langevin']:
-        #     path = save_path + '/' + str(epoch) + '_seed_tshirt_train_epoch.pth'
-        #     self.seeds_tshirt_train.data = torch.load(path, map_location='cpu').to(self.device)
-
-        #     path = save_path + '/' + str(epoch) + '_seed_trouser_train_epoch.pth'
-        #     self.seeds_trouser_train.data = torch.load(path, map_location='cpu').to(self.device)
-
-        #     path = save_path + '/' + str(epoch) + '_seed_tshirt_fixed_epoch.pth'
-        #     self.seeds_tshirt_fixed.data = torch.load(path, map_location='cpu').to(self.device)
-
-        #     path = save_path + '/' + str(epoch) + '_seed_trouser_fixed_epoch.pth'
-        #     self.seeds_trouser_fixed.data = torch.load(path, map_location='cpu').to(self.device)
 
         path = save_path + '_info.npz'
         if os.path.exists(path):
@@ -447,7 +436,7 @@ class PatchTrainer(object):
         if checkpoints > 0:
             # loading trained checkpoints
             args.save_path = os.path.join(args.save_path, "08_03-01_36")
-            self.load_weights(args.save_path, checkpoints-1, best=True)
+            self.load_weights(args.save_path, checkpoints, best=True)
 
             # Remove train folder to create new train folder
             args.save_path = args.save_path.rsplit('/', 1)[0]
@@ -462,6 +451,7 @@ class PatchTrainer(object):
             os.makedirs(args.save_path)
 
         print("Starting training epochs...\n")
+        checkpoints += 1
         best_det_loss = 1.0
         for epoch in range(checkpoints, checkpoints+args.nepoch):
         # for epoch in tqdm(range(checkpoints, checkpoints+args.nepoch), initial=checkpoints):
