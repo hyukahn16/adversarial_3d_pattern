@@ -906,14 +906,16 @@ if __name__ == '__main__':
     elif args.test and not args.gen_test:
         # args.save_path = "results_paper/yolov3_07"
         args.save_path = os.path.join(args.save_path, args.checkpoint_dir)
-        epoch = args.checkpoints
-        trainer.load_weights(args.save_path, epoch, best=args.use_best)
+        path = os.path.join(args.save_path, args.checkpoints)
+        filename = 'test_results_tps' + "_iou" + str(args.test_iou).replace('.', '') + "_" + args.test_mode + '.npz'
+        path = os.path.join(path, filename)
+        print(path)
+
+        trainer.load_weights(args.save_path, args.checkpoints, best=args.use_best)
         trainer.update_mesh(type='determinate')
+
         precision, recall, avg, confs, thetas = trainer.test(conf_thresh=0.01, iou_thresh=args.test_iou, angle_sample=37, use_tps2d=not args.disable_test_tps2d, use_tps3d=not args.disable_test_tps3d, mode=args.test_mode)
         info = [precision, recall, avg, confs]
-        path = args.save_path + '/' + str(epoch) + 'test_results_tps'
-        path = path + '_iou' + str(args.test_iou).replace('.', '') + '_' + args.test_mode + args.test_suffix
-        path = path + '.npz'
         np.savez(path, thetas=thetas, info=info)
         print(info)
     elif args.gen_test:
