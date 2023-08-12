@@ -906,7 +906,7 @@ if __name__ == '__main__':
     elif args.test and not args.gen_test:
         # args.save_path = "results_paper/yolov3_07"
         args.save_path = os.path.join(args.save_path, args.checkpoint_dir)
-        path = os.path.join(args.save_path, args.checkpoints)
+        path = args.save_path
         filename = 'test_results_tps' + "_iou" + str(args.test_iou).replace('.', '') + "_" + args.test_mode + '.npz'
         path = os.path.join(path, filename)
         print(path)
