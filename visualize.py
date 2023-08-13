@@ -4,11 +4,12 @@ import matplotlib.pyplot as plt
 import argparse
 
 parser = argparse.ArgumentParser(description="Visualizing NPZ file")
+parser.add_argument("--result_folder", default="results", help="results or results_paper")
 parser.add_argument("--npz_folder", default="", help="folder like 08_09-11_56")
 parser.add_argument("--npz_file", default = "", help="Include .npz in the argument!")
 args = parser.parse_args()
 
-prefix = os.path.join('results', args.npz_folder)
+prefix = os.path.join(args.result_folder, args.npz_folder)
 suffix = args.npz_file
 # suffix = '/599test_results_tps_iou01_person'
 
