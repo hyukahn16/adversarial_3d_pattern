@@ -29,6 +29,7 @@ for name in names:
     if not os.path.exists(save_dir):
         print('Didn\'t find %s' % save_dir)
     else:
+        print("Reading from {}".format(save_dir))
         thetas, info = np.load(save_dir, allow_pickle=True).values()
         confs_part = info[3] #[precision, recall, avg, confs_part]
         leg.append('%s ASR %.4f' % (name.split('/')[0], (confs_part<conf_threshold).mean()))
