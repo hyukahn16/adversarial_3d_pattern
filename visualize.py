@@ -32,7 +32,10 @@ for name in names:
         print("Reading from {}".format(save_dir))
         thetas, info = np.load(save_dir, allow_pickle=True).values()
         confs_part = info[3] #[precision, recall, avg, confs_part]
-        leg.append('%s ASR %.4f' % (name.split('/')[0], (confs_part<conf_threshold).mean()))
+
+        # Calc avg from all predicted bboxes that have conf threshold < 0.5
+        leg.append('%s ASR %.4f' % ("YOLOv3", (confs_part<conf_threshold).mean()))
+
         ax[0, 0].plot(thetas, confs_part.mean(1))
         ax[0, 0].set_ylim(-0.05, 1.05)
         ax[0, 0].set_xlabel('viewing angles')
