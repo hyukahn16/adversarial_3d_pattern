@@ -110,6 +110,23 @@ class PatchTrainer(object):
         obj_filename_tshirt = os.path.join(self.DATA_DIR, "Archive/tshirt_join/tshirt.obj")
         obj_filename_trouser = os.path.join(self.DATA_DIR, "Archive/trouser_join/trouser.obj")
 
+
+        # @@@@@@@@@@@@@@@@@@@@@@ LOADING WEIGHTS
+        if not os.path.exists(args.save_path):
+            print("Loading path \"{}\"does not exist. Exiting.".format(args.save_path))
+            exit()
+
+        if args.use_best:
+            save_path = os.path.join(args.save_path, "best")
+        else:
+            save_path = os.path.join(args.save_path, str(args.checkpoint))
+        
+        print("Loading weights from {}...".format(save_path))
+        
+        path = save_path + '_color_epoch.pth'
+        self.colors.data = torch.load(path, map_location='cpu').to(self.device)
+        num_colors = len(self.colors)
+        
         self.coordinates = torch.stack(torch.meshgrid(torch.arange(h), torch.arange(w)), -1).to(device)
         self.coordinates_t = torch.stack(torch.meshgrid(torch.arange(h_t), torch.arange(w_t)), -1).to(device)
         self.tshirt_point = torch.rand([num_colors, args.num_points_tshirt, 3], requires_grad=True, device=device)
@@ -118,6 +135,37 @@ class PatchTrainer(object):
         self.mesh_tshirt = load_objs_as_meshes([obj_filename_tshirt], device=device)
         self.mesh_trouser = load_objs_as_meshes([obj_filename_trouser], device=device)
 
+        path = save_path + '_circle_epoch.pth'
+        self.tshirt_point.data = torch.load(path, map_location='cpu').to(self.device)
+
+        path = save_path + '_trouser_epoch.pth'
+        self.trouser_point.data = torch.load(path, map_location='cpu').to(self.device)
+
+        path = save_path + '_seed_tshirt_epoch.pth'
+        self.seeds_tshirt = torch.load(path, map_location='cpu').to(self.device)
+
+        path = save_path + '_seed_trouser_epoch.pth'
+        self.seeds_trouser = torch.load(path, map_location='cpu').to(self.device)
+
+        path = save_path + '_info.npz'
+        if os.path.exists(path):
+            x = np.load(path)
+            self.loss_history = torch.from_numpy(x['loss_history']).to(self.device)
+            self.num_history = torch.from_numpy(x['num_history']).to(self.device)
+
+        # Was originally defined in PatchTrainer init
+        k = 3
+        k2 = k * k
+        self.camouflage_kernel = nn.Conv2d(self.num_colors, self.num_colors, k, 1, int(k / 2)).to(device)
+        self.camouflage_kernel.weight.data.fill_(0)
+        self.camouflage_kernel.bias.data.fill_(0)
+        for i in range(self.num_colors):
+            self.camouflage_kernel.weight[i, i, :, :].data.fill_(1 / k2)
+
+        print("Loaded saved weights")
+
+        # @@@@@@@@@@@@@@@@@@@@@@ LOADED WEIGHTS
+        
         self.faces = self.mesh_tshirt.textures.faces_uvs_padded()
         self.verts_uv = self.mesh_tshirt.textures.verts_uvs_padded()
         self.faces_uvs_tshirt = self.mesh_tshirt.textures.faces_uvs_list()[0]
@@ -304,49 +352,7 @@ class PatchTrainer(object):
         return tex, tex_trouser
 
     def load_weights(self, save_path, epoch, best=False):
-        if not os.path.exists(args.save_path):
-            print("Loading path \"{}\"does not exist. Exiting...".format(args.save_path))
-            exit()
-
-        if best:
-            save_path = os.path.join(save_path, "best")
-        else:
-            save_path = os.path.join(save_path, str(epoch))
         
-        print("Loading weights from {}".format(save_path))
-
-        path = save_path + '_circle_epoch.pth'
-        self.tshirt_point.data = torch.load(path, map_location='cpu').to(self.device)
-
-        path = save_path + '_trouser_epoch.pth'
-        self.trouser_point.data = torch.load(path, map_location='cpu').to(self.device)
-      
-        path = save_path + '_color_epoch.pth'
-        self.colors.data = torch.load(path, map_location='cpu').to(self.device)
-        self.num_colors = len(self.colors)
-
-        path = save_path + '_seed_tshirt_epoch.pth'
-        self.seeds_tshirt = torch.load(path, map_location='cpu').to(self.device)
-
-        path = save_path + '_seed_trouser_epoch.pth'
-        self.seeds_trouser = torch.load(path, map_location='cpu').to(self.device)
-
-        path = save_path + '_info.npz'
-        if os.path.exists(path):
-            x = np.load(path)
-            self.loss_history = torch.from_numpy(x['loss_history']).to(self.device)
-            self.num_history = torch.from_numpy(x['num_history']).to(self.device)
-
-        # Was originally defined in PatchTrainer init
-        k = 3
-        k2 = k * k
-        self.camouflage_kernel = nn.Conv2d(self.num_colors, self.num_colors, k, 1, int(k / 2)).to(device)
-        self.camouflage_kernel.weight.data.fill_(0)
-        self.camouflage_kernel.bias.data.fill_(0)
-        for i in range(self.num_colors):
-            self.camouflage_kernel.weight[i, i, :, :].data.fill_(1 / k2)
-
-        print("Loaded saved weights")
 
 
     def test(self, conf_thresh, iou_thresh, num_of_samples=100, angle_sample=37, use_tps2d=True, use_tps3d=True, mode='person'):
@@ -482,7 +488,7 @@ if __name__ == '__main__':
     print('advcat version 2.0')
     parser = argparse.ArgumentParser(description='PyTorch Training')
     parser.add_argument('--device', default='cuda:0', help='')
-    parser.add_argument('--checkpoints', type=int, default=0, help='')
+    parser.add_argument('--checkpoint', type=int, default=0, help='')
     parser.add_argument('--batch_size', type=int, default=4, help='')
     parser.add_argument('--save_path', default='results', help='results or results_paper')
     parser.add_argument("--alpha", type=float, default=10, help='')
@@ -507,7 +513,7 @@ if __name__ == '__main__':
     # MY arguments
     parser.add_argument("--use_best", default=False, help='Whether to load best weights')
     parser.add_argument("--checkpoint_dir", default='', help='folder name containing the weights files')
-    parser.add_argument("--color_pth", default="army_colors.pth", help='.pth file for pattern colors')
+    # parser.add_argument("--color_pth", default="army_colors.pth", help='.pth file for pattern colors')
     parser.add_argument("--test_dir", default="background_test", help="folder name containing test background files")
 
 
@@ -520,18 +526,15 @@ if __name__ == '__main__':
 
     os.environ['TZ'] = 'Asia/Seoul'
     time.tzset()
-
+    args.save_path = os.path.join(args.save_path, args.checkpoint_dir)
+    
     print("Test info:", args)
     trainer = PatchTrainer(args)
     print("Created PatchTrainer...")
-  
-    args.save_path = os.path.join(args.save_path, args.checkpoint_dir)
-    filename = 'test' + "_iou" + str(args.test_iou).replace('.', '') + "_" + args.test_mode + '.npz'
-    path = os.path.join(args.save_path, filename)
+    
     print("Loading weights from {}".format(args.save_path))
-
     trainer.load_weights(args.save_path, args.checkpoints, best=args.use_best)
-    print("Loaded weights from {}".format(weight_path))
+    print("Loaded weights from {}".format(args.save_path))
     trainer.update_mesh(type='determinate')
 
     precision, recall, avg, confs, thetas = trainer.test(conf_thresh=0.01,
@@ -541,4 +544,6 @@ if __name__ == '__main__':
                                                          use_tps3d=not args.disable_test_tps3d,
                                                          mode=args.test_mode)
     info = [precision, recall, avg, confs]
-    np.savez(path, thetas=thetas, info=info)
+    filename = 'test' + "_iou" + str(args.test_iou).replace('.', '') + "_" + args.test_mode + '.npz'
+    npz_path = os.path.join(args.save_path, filename)
+    np.savez(npz_path, thetas=thetas, info=info)
