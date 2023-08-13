@@ -4,8 +4,8 @@ import matplotlib.pyplot as plt
 import argparse
 
 parser = argparse.ArgumentParser(description="Visualizing NPZ file")
-parser.add_argument("npz_folder", type="str", default="")
-parser.add_argument("npz_file", type="str", default="Include .npz in the argument!")
+parser.add_argument("npz_folder", default="", help="folder like 08_09-11_56")
+parser.add_argument("npz_file", default = "", help="Include .npz in the argument!")
 args = parser.parse_args()
 
 prefix = os.path.join('results', args.npz_folder)
