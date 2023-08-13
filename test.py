@@ -351,10 +351,6 @@ class PatchTrainer(object):
 
         return tex, tex_trouser
 
-    def load_weights(self, save_path, epoch, best=False):
-        
-
-
     def test(self, conf_thresh, iou_thresh, num_of_samples=100, angle_sample=37, use_tps2d=True, use_tps3d=True, mode='person'):
         """
         Optimize a patch to generate an adversarial example.
