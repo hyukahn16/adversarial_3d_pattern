@@ -125,7 +125,7 @@ class PatchTrainer(object):
         
         path = save_path + '_color_epoch.pth'
         # self.colors.data = torch.load(path, map_location='cpu').to(self.device)
-        self.colors = torch.load(path).float().to(device)
+        self.colors = torch.load(path, map_location='cpu').float().to(device)
         num_colors = len(self.colors)
         
         self.coordinates = torch.stack(torch.meshgrid(torch.arange(h), torch.arange(w)), -1).to(device)
