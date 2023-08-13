@@ -38,16 +38,20 @@ for name in names:
         ax[0, 0].set_xlabel('viewing angles')
         ax[0, 0].set_ylabel('confidence')
         ax[0, 0].set_title('conf mean')
+
         ax[1, 0].plot(thetas, (confs_part < conf_threshold).mean(1))
         ax[1, 0].set_ylim(-0.05, 1.05) 
         ax[1, 0].set_xlabel('viewing angles')
         ax[1, 0].set_ylabel('success rate')
         ax[1, 0].set_title('detect threshold %.1f' % conf_threshold)
+
         ax[0, 1].scatter(np.tile(thetas[:, None], (1, confs_part.shape[1])), confs_part.flatten(), s=0.2)
         ax[0, 1].set_ylim(-0.05, 1.05)   
         ax[0, 1].set_title('conf scatter')
+
         ax[1, 1].plot(thetas, confs_part.max(1))
         ax[1, 1].set_ylim(-0.05, 1.05)    
         ax[1, 1].set_title('max conf')
 ax[1, 0].legend(leg)
 plt.show()
+plt.save_fig(os.path.join(prefix, "visualize_npz.png"))
