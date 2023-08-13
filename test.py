@@ -374,9 +374,6 @@ class PatchTrainer(object):
                     p_img_batch, gt = self.synthesis_image(img_batch, use_tps2d, use_tps3d)
 
                     normalize = True
-                    if self.args.arch == "deformable-detr" and normalize:
-                        normalize = transforms.Normalize([0.485, 0.456, 0.406],[0.229, 0.224, 0.225])
-                        p_img_batch = normalize(p_img_batch)
 
                     output = self.model(p_img_batch)
                     total += len(p_img_batch)  # since 1 image only has 1 gt, so the total # gt is just = the total # images
@@ -481,7 +478,6 @@ class PatchTrainer(object):
 
 
 if __name__ == '__main__':
-    print('advcat version 2.0')
     parser = argparse.ArgumentParser(description='PyTorch Training')
     parser.add_argument('--device', default='cuda:0', help='')
     parser.add_argument('--checkpoint', type=int, default=0, help='')
