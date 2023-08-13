@@ -1,14 +1,19 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
+import argparse
 
-prefix = 'results_paper/'
-suffix = '/599test_results_tps_iou01_person'
+parser = argparse.ArgumentParser(description="Visualizing NPZ file")
+parser.add_argument("npz_folder", type="str", default="")
+parser.add_argument("npz_file", type="str", default="Include .npz in the argument!")
+args = parser.parse_args()
+
+prefix = os.path.join('results', args.npz_folder)
+suffix = args.npz_file
+# suffix = '/599test_results_tps_iou01_person'
 
 names = [
-    'rcnn_sr07',
-    'deformable_detr_07',
-    'yolov3_07',
+    args.npz_file
 ]
 
 others = [
@@ -20,7 +25,7 @@ conf_threshold = 0.5
 fig, ax = plt.subplots(2, 2, figsize=(17, 10))
 leg = []
 for name in names:
-    save_dir = os.path.join(prefix + name + '.npz')
+    save_dir = os.path.join(prefix, suffix)
     if not os.path.exists(save_dir):
         print('Didn\'t find %s' % save_dir)
     else:
