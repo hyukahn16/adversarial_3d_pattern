@@ -54,4 +54,4 @@ for name in names:
         ax[1, 1].set_title('max conf')
 ax[1, 0].legend(leg)
 plt.show()
-plt.save_fig(os.path.join(prefix, "visualize_npz.png"))
+plt.savefig(os.path.join(prefix, "visualize_npz.png"))
