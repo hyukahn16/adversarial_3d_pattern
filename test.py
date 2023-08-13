@@ -527,10 +527,7 @@ if __name__ == '__main__':
     print("Test info:", args)
     trainer = PatchTrainer(args)
     print("Created PatchTrainer...")
-    
-    print("Loading weights from {}".format(args.save_path))
-    trainer.load_weights(args.save_path, args.checkpoints, best=args.use_best)
-    print("Loaded weights from {}".format(args.save_path))
+
     trainer.update_mesh(type='determinate')
 
     precision, recall, avg, confs, thetas = trainer.test(conf_thresh=0.01,
