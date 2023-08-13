@@ -154,15 +154,6 @@ class PatchTrainer(object):
             self.loss_history = torch.from_numpy(x['loss_history']).to(self.device)
             self.num_history = torch.from_numpy(x['num_history']).to(self.device)
 
-        # Was originally defined in PatchTrainer init
-        k = 3
-        k2 = k * k
-        self.camouflage_kernel = nn.Conv2d(self.num_colors, self.num_colors, k, 1, int(k / 2)).to(device)
-        self.camouflage_kernel.weight.data.fill_(0)
-        self.camouflage_kernel.bias.data.fill_(0)
-        for i in range(self.num_colors):
-            self.camouflage_kernel.weight[i, i, :, :].data.fill_(1 / k2)
-
         print("Loaded saved weights")
 
         # @@@@@@@@@@@@@@@@@@@@@@ LOADED WEIGHTS
@@ -175,6 +166,14 @@ class PatchTrainer(object):
         self.verts_uv_trouser = self.mesh_trouser.textures.verts_uvs_padded()
         self.faces_uvs_trouser = self.mesh_trouser.textures.faces_uvs_list()[0]
 
+        k = 3
+        k2 = k * k
+        self.camouflage_kernel = nn.Conv2d(num_colors, num_colors, k, 1, int(k / 2)).to(device)
+        self.camouflage_kernel.weight.data.fill_(0)
+        self.camouflage_kernel.bias.data.fill_(0)
+        for i in range(num_colors):
+            self.camouflage_kernel.weight[i, i, :, :].data.fill_(1 / k2)
+        
         self.expand_kernel = nn.ConvTranspose2d(3, 3, resolution, stride=resolution, padding=0).to(device)
         self.expand_kernel.weight.data.fill_(0)
         self.expand_kernel.bias.data.fill_(0)
