@@ -432,11 +432,11 @@ class PatchTrainer(object):
         self.writer = self.init_tensorboard()
         args = self.args
 
-        checkpoints = args.checkpoints
-        if checkpoints > 0:
-            # loading trained checkpoints
+        checkpoint = args.checkpoint
+        if checkpoint > 0:
+            # loading trained checkpoint
             args.save_path = os.path.join(args.save_path, args.checkpoint_dir)
-            self.load_weights(args.save_path, checkpoints, best=False)
+            self.load_weights(args.save_path, checkpoint, best=False)
 
             # Remove train folder to create new train folder
             args.save_path = args.save_path.rsplit('/', 1)[0]
@@ -451,10 +451,10 @@ class PatchTrainer(object):
             os.makedirs(args.save_path)
 
         print("Starting training epochs...\n")
-        checkpoints += 1
+        checkpoint += 1
         best_det_loss = 1.0
-        for epoch in range(checkpoints, checkpoints+args.nepoch):
-        # for epoch in tqdm(range(checkpoints, checkpoints+args.nepoch), initial=checkpoints):
+        for epoch in range(checkpoint, checkpoint+args.nepoch):
+        # for epoch in tqdm(range(checkpoint, checkpoint+args.nepoch), initial=checkpoint):
             et0 = time.time()
             ep_det_loss = 0
             ep_loss = 0
@@ -612,7 +612,7 @@ class PatchTrainer(object):
             #     plt.axis('off')
             #     self.writer.add_figure('maps_trouser', fig, epoch)
 
-            # Save checkpoints
+            # Save checkpoint
             if (epoch + 1) % 1 == 0 or epoch == 0:
                 # torchvision.utils.save_image(
                 #     p_img_batch[0, :, :, :],
@@ -911,7 +911,7 @@ if __name__ == '__main__':
         path = os.path.join(path, filename)
         print(path)
 
-        trainer.load_weights(args.save_path, args.checkpoints, best=args.use_best)
+        trainer.load_weights(args.save_path, args.checkpoint, best=args.use_best)
         trainer.update_mesh(type='determinate')
 
         precision, recall, avg, confs, thetas = trainer.test(conf_thresh=0.01, iou_thresh=args.test_iou, angle_sample=37, use_tps2d=not args.disable_test_tps2d, use_tps3d=not args.disable_test_tps3d, mode=args.test_mode)
