@@ -840,7 +840,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=0.001, help='')
     parser.add_argument('--lr_seed', type=float, default=0.01, help='')
     parser.add_argument('--nepoch', type=int, default=200, help='')
-    parser.add_argument('--checkpoints', type=int, default=0, help='')
+    parser.add_argument('--checkpoint', type=int, default=0, help='')
     parser.add_argument('--batch_size', type=int, default=4, help='')
     parser.add_argument('--save_path', default='results/', help='')
     parser.add_argument("--alpha", type=float, default=10, help='')
