@@ -379,9 +379,9 @@ class PatchTrainer(object):
                     total += len(p_img_batch)  # since 1 image only has 1 gt, so the total # gt is just = the total # images
                     pos = []
                     # for i, boxes in enumerate(output):  # for each image
-                    conf_thresh = 0.0 if self.args.arch in ['rcnn'] else 0.1
+                    conf_thresh = 0.1
                     person_cls = 0
-                    output = utils.get_region_boxes_general(output, self.model, conf_thresh=conf_thresh, name=self.args.arch)
+                    output = utils.get_region_boxes_general(output, self.model, conf_thresh=conf_thresh, name="yolov3")
 
                     for i, boxes in enumerate(output):
                         if len(boxes) == 0:
