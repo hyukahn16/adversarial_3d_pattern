@@ -450,6 +450,11 @@ class PatchTrainer(object):
         if not os.path.exists(args.save_path):
             os.makedirs(args.save_path)
 
+        # Where train images get stored
+        sample_path = os.path.join(args.save_path, "train_samples")
+        if not os.path.exists(sample_path):
+            os.makedirs(sample_path)
+
         print("Starting training epochs...\n")
         checkpoint += 1
         best_det_loss = 1.0
@@ -542,13 +547,17 @@ class PatchTrainer(object):
                 self.tshirt_point.data = self.tshirt_point.data.clamp(0, 1)
                 self.trouser_point.data = self.trouser_point.data.clamp(0, 1)
 
-                # if i_batch % 1 == 0:
+                if i_batch % 100 == 0:
                 #     iteration = self.epoch_length * epoch + i_batch
                 #     self.writer.add_scalar('batch/total_loss', loss.detach().cpu().numpy(), iteration)
                 #     self.writer.add_scalar('batch/tv_loss', tv_loss.detach().cpu().numpy(), iteration)
                 #     self.writer.add_scalar('batch/det_loss', det_loss.detach().cpu().numpy(), iteration)
                 #     self.writer.add_scalar('batch/ctrl_loss', loss_c.detach().cpu().numpy(), iteration)
                 #     self.writer.add_scalar('batch/loss_seed', loss_seed.detach().cpu().numpy(), iteration)
+                    torchvision.utils.save_image(
+                        p_img_batch[0, :, :, :],
+                        os.path.join(sample_path, '{}_{}.png'.format(epoch, i_batch)))
+
 
             et1 = time.time()
             ep_det_loss = ep_det_loss / eff_count
@@ -568,9 +577,6 @@ class PatchTrainer(object):
                 print('    EPOCH TIME: ', et1 - et0)
                 print('    LEARNING RATE', self.optimizer.param_groups[0]['lr'])
 
-                sample_path = os.path.join(args.save_path, "train_samples")
-                if not os.path.exists(sample_path):
-                    os.makedirs(sample_path)
                 torchvision.utils.save_image(
                     p_img_batch[0, :, :, :],
                     os.path.join(sample_path, '{}_{}.png'.format(epoch, 0)))
