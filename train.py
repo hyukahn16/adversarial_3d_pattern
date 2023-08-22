@@ -454,7 +454,6 @@ class PatchTrainer(object):
         checkpoint += 1
         best_det_loss = 1.0
         for epoch in range(checkpoint, checkpoint+args.nepoch):
-        # for epoch in tqdm(range(checkpoint, checkpoint+args.nepoch), initial=checkpoint):
             et0 = time.time()
             ep_det_loss = 0
             ep_loss = 0
@@ -465,9 +464,6 @@ class PatchTrainer(object):
             # ep_log_likelihood = 0
             eff_count = 0  # record how many images in this epoch are really in training so that we can calculate accurate loss
             self.sampler_probs = self.loss_history / self.num_history
-            # if epoch % 100 == 0:
-            #     print("\nSampler Probabilities: ")
-            #     print(self.sampler_probs)
             self.loss_history = self.loss_history / 2 + 1e-5
             self.num_history = self.num_history / 2 + 1e-5
 
@@ -475,12 +471,11 @@ class PatchTrainer(object):
                 tau = np.exp(-(epoch + 1) / args.nepoch * args.anneal_alpha) * args.anneal_init
             else:
                 tau = 0.3
+
             for i_batch, img_batch in tqdm(enumerate(self.train_loader),
                                             desc=f'Epoch {epoch}',
                                             total=len(self.train_loader)):
-            # for i_batch, img_batch in enumerate(self.train_loader):
                 img_batch = img_batch.to(self.device)
-                # t0 = time.time()
                 # AG step
                 self.optimizer.zero_grad()
                 self.optimizer_seed.zero_grad()
@@ -488,26 +483,16 @@ class PatchTrainer(object):
                     self.sample_cameras()
                     self.sample_lights()
 
-                # if args.seed_type in ['variable', 'langevin']:
-                #     self.seeds_tshirt = args.seed_ratio * self.seeds_tshirt_train + (1 - args.seed_ratio) * self.seeds_tshirt_fixed
-                #     self.seeds_trouser = args.seed_ratio * self.seeds_trouser_train + (1 - args.seed_ratio) * self.seeds_trouser_fixed
-
                 tex, tex_trouser = self.update_mesh(tau=tau)
                 p_img_batch, gt = self.synthesis_image(img_batch, not args.disable_tps2d, not args.disable_tps3d)
-                # t1 = time.time()
-                normalize = True
-                if self.args.arch == "deformable-detr" and normalize:
-                    normalize = transforms.Normalize([0.485, 0.456, 0.406],[0.229, 0.224, 0.225])
-                    p_img_batch = normalize(p_img_batch)
                 output = self.model(p_img_batch)
 
-                # t2 = time.time()
                 try:
                     det_loss, max_prob_list = self.prob_extractor(output, gt, loss_type=args.loss_type, iou_thresh=args.train_iou)
                     eff_count += 1
                 except RuntimeError:  # current batch of imgs have no bbox be detected
                     continue
-                # t3 = time.time()
+
                 if self.azim_inds is not None:
                     self.loss_history.index_put_([self.azim_inds], max_prob_list.detach(), accumulate=True)
                     self.num_history.index_put_([self.azim_inds], torch.ones_like(max_prob_list), accumulate=True)
@@ -553,11 +538,11 @@ class PatchTrainer(object):
                             raw = s + s.new(s.shape).normal_() * beta
                             s.data = raw.clamp(args.clamp_shift, 1 - args.clamp_shift) * 2 - raw
                             s.data.clamp_(args.clamp_shift, 1 - args.clamp_shift)
-                # t4 = time.time()
+
                 self.tshirt_point.data = self.tshirt_point.data.clamp(0, 1)
                 self.trouser_point.data = self.trouser_point.data.clamp(0, 1)
 
-                # if i_batch % 10 == 0:
+                # if i_batch % 1 == 0:
                 #     iteration = self.epoch_length * epoch + i_batch
                 #     self.writer.add_scalar('batch/total_loss', loss.detach().cpu().numpy(), iteration)
                 #     self.writer.add_scalar('batch/tv_loss', tv_loss.detach().cpu().numpy(), iteration)
@@ -590,27 +575,24 @@ class PatchTrainer(object):
                     p_img_batch[0, :, :, :],
                     os.path.join(sample_path, '{}_{}.png'.format(epoch, 0)))
 
-                # self.writer.add_scalar('epoch/total_loss', ep_loss, epoch)
-                # self.writer.add_scalar('epoch/tv_loss', ep_tv_loss, epoch)
-                # self.writer.add_scalar('epoch/det_loss', ep_det_loss, epoch)
-                # self.writer.add_scalar('epoch/ctrl_loss', ep_ctrl_loss, epoch)
-                # self.writer.add_scalar('epoch/seed_loss', ep_seed_loss, epoch)
-                # self.writer.add_scalar('epoch/lr', self.optimizer.param_groups[0]['lr'], epoch)
+                self.writer.add_scalar('epoch/total_loss', ep_loss, epoch)
+                self.writer.add_scalar('epoch/tv_loss', ep_tv_loss, epoch)
+                self.writer.add_scalar('epoch/det_loss', ep_det_loss, epoch)
+                self.writer.add_scalar('epoch/ctrl_loss', ep_ctrl_loss, epoch)
+                self.writer.add_scalar('epoch/seed_loss', ep_seed_loss, epoch)
+                self.writer.add_scalar('epoch/lr', self.optimizer.param_groups[0]['lr'], epoch)
 
             # Save textures
-            # if (epoch + 1) % 20 == 0 or epoch == 0:
-            #     # from google.colab.patches import cv2_imshow
-            #     # cv2_imshow(tex[0].detach().cpu().numpy())
-            #     fig = plt.figure()
-            #     plt.imshow(tex[0].detach().cpu().numpy())
-            #     plt.axis('off')
-            #     self.writer.add_figure('maps_tshirt', fig, epoch)
+            if (epoch + 1) % 1 == 0 or epoch == 0:
+                fig = plt.figure()
+                plt.imshow(tex[0].detach().cpu().numpy())
+                plt.axis('off')
+                self.writer.add_figure('maps_tshirt', fig, epoch)
 
-            #     # cv2_imshow(tex_trouser[0].detach().cpu().numpy())
-            #     fig = plt.figure()
-            #     plt.imshow(tex_trouser[0].detach().cpu().numpy())
-            #     plt.axis('off')
-            #     self.writer.add_figure('maps_trouser', fig, epoch)
+                fig = plt.figure()
+                plt.imshow(tex_trouser[0].detach().cpu().numpy())
+                plt.axis('off')
+                self.writer.add_figure('maps_trouser', fig, epoch)
 
             # Save checkpoint
             if (epoch + 1) % 1 == 0 or epoch == 0:
@@ -632,27 +614,27 @@ class PatchTrainer(object):
                 np.savez(path, loss_history=self.loss_history.cpu().numpy(), num_history=self.num_history.cpu().numpy(), azim=self.azim.cpu().numpy())
 
             # Save pattern with BEST attack rate
-            if ep_det_loss < best_det_loss:
-                print("Saving best detection loss...")
-                best_det_loss = ep_det_loss
+            # if ep_det_loss < best_det_loss:
+            #     print("Saving best detection loss...")
+            #     best_det_loss = ep_det_loss
 
-                # Save sample of training image
-                torchvision.utils.save_image(
-                    p_img_batch[0, :, :, :],
-                    os.path.join(args.save_path, 'best_{}.png'.format(epoch)))
+            #     # Save sample of training image
+            #     torchvision.utils.save_image(
+            #         p_img_batch[0, :, :, :],
+            #         os.path.join(args.save_path, 'best_{}.png'.format(epoch)))
 
-                path = args.save_path + '/' + 'best_circle_epoch.pth'
-                torch.save(self.tshirt_point, path)
-                path = args.save_path + '/' + 'best_color_epoch.pth'
-                torch.save(self.colors, path)
-                path = args.save_path + '/' + 'best_trouser_epoch.pth'
-                torch.save(self.trouser_point, path)
-                path = args.save_path + '/' + 'best_seed_tshirt_epoch.pth'
-                torch.save(self.seeds_tshirt, path)
-                path = args.save_path + '/' + 'best_seed_trouser_epoch.pth'
-                torch.save(self.seeds_trouser, path)
-                path = args.save_path + '/' + 'best_info.npz'
-                np.savez(path, loss_history=self.loss_history.cpu().numpy(), num_history=self.num_history.cpu().numpy(), azim=self.azim.cpu().numpy())               
+            #     path = args.save_path + '/' + 'best_circle_epoch.pth'
+            #     torch.save(self.tshirt_point, path)
+            #     path = args.save_path + '/' + 'best_color_epoch.pth'
+            #     torch.save(self.colors, path)
+            #     path = args.save_path + '/' + 'best_trouser_epoch.pth'
+            #     torch.save(self.trouser_point, path)
+            #     path = args.save_path + '/' + 'best_seed_tshirt_epoch.pth'
+            #     torch.save(self.seeds_tshirt, path)
+            #     path = args.save_path + '/' + 'best_seed_trouser_epoch.pth'
+            #     torch.save(self.seeds_trouser, path)
+            #     path = args.save_path + '/' + 'best_info.npz'
+            #     np.savez(path, loss_history=self.loss_history.cpu().numpy(), num_history=self.num_history.cpu().numpy(), azim=self.azim.cpu().numpy())               
 
             print("")
             # Evaluate training
@@ -666,6 +648,7 @@ class PatchTrainer(object):
             #         path = path + '.npz'
             #         np.savez(path, thetas=thetas, info=info)
 
+            # Learning rate decay
             if epoch % 1 == 0:
                 # Decaying lr_decay (META-DECAY)
                 args.lr_decay -= 0.15 # Start from 1.5 and count down?
