@@ -656,11 +656,11 @@ class PatchTrainer(object):
 
             # Learning rate decay
             if epoch % 1 == 0:
+                self.optimizer.param_groups[0]['lr'] = self.optimizer.param_groups[0]['lr'] / args.lr_decay
+                self.optimizer_seed.param_groups[0]['lr'] = self.optimizer_seed.param_groups[0]['lr'] / args.lr_decay_seed
                 # Decaying lr_decay (META-DECAY)
                 args.lr_decay -= 0.15 # Start from 1.5 and count down?
                 args.lr_decay = max(args.lr_decay, 1.1)
-                self.optimizer.param_groups[0]['lr'] = self.optimizer.param_groups[0]['lr'] / args.lr_decay
-                self.optimizer_seed.param_groups[0]['lr'] = self.optimizer_seed.param_groups[0]['lr'] / args.lr_decay_seed
 
 
     def test(self, conf_thresh, iou_thresh, num_of_samples=100, angle_sample=37, use_tps2d=True, use_tps3d=True, mode='person'):
@@ -792,16 +792,14 @@ class PatchTrainer(object):
         return precision, recall, avg, confs, thetas_list
 
     def generate_test_images(self, angle_sample=37, use_tps2d=True, use_tps3d=True):
-        weights_dir = "08_04-15_13"
-        args.save_path = os.path.join(args.save_path, weights_dir)
-        load_epoch = 599
-        use_best = True
-        self.load_weights(args.save_path, load_epoch, best=use_best)
-        self.update_mesh(type='determinate')
+        args.save_path = os.path.join(args.save_path, args.checkpoint_dir)
+        use_best = args.use_best
+        self.load_weights(args.save_path, args.checkpoint, best=use_best)
         print("Loaded weights")
+        self.update_mesh(type='determinate')
 
         print("Generating test images...")
-        test_dir = os.path.join("test_images", weights_dir)
+        test_dir = os.path.join("test_images", args.checkpoint_dir)
         if not os.path.exists(test_dir):
             os.makedirs(test_dir)
         thetas_list = np.linspace(-180, 180, angle_sample)
