@@ -589,7 +589,7 @@ class PatchTrainer(object):
                 self.writer.add_scalar('epoch/lr', self.optimizer.param_groups[0]['lr'], epoch)
 
             # Save textures
-            if (epoch + 1) % 1 == 0 or epoch == 0:
+            if True:
                 fig = plt.figure()
                 plt.imshow(tex[0].detach().cpu().numpy())
                 plt.axis('off')
@@ -601,7 +601,7 @@ class PatchTrainer(object):
                 self.writer.add_figure('maps_trouser', fig, epoch)
 
             # Save checkpoint
-            if (epoch + 1) % 1 == 0 or epoch == 0:
+            if True:
                 # torchvision.utils.save_image(
                 #     p_img_batch[0, :, :, :],
                 #     os.path.join(args.save_path, '{}.png'.format(epoch)))
@@ -655,7 +655,7 @@ class PatchTrainer(object):
             #         np.savez(path, thetas=thetas, info=info)
 
             # Learning rate decay
-            if epoch % 1 == 0:
+            if True:
                 self.optimizer.param_groups[0]['lr'] = self.optimizer.param_groups[0]['lr'] / args.lr_decay
                 self.optimizer_seed.param_groups[0]['lr'] = self.optimizer_seed.param_groups[0]['lr'] / args.lr_decay_seed
                 # Decaying lr_decay (META-DECAY)
