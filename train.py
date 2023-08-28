@@ -520,7 +520,7 @@ class PatchTrainer(object):
                     loss_seed = torch.zeros([], device=self.device)
 
                 ep_mean_prob += max_prob_list.mean().item()
-                ep_ctrl_loss += loss_c.item()
+                # ep_ctrl_loss += loss_c.item()
                 ep_det_loss += det_loss.item()
                 ep_tv_loss += tv_loss.item()
                 ep_seed_loss += loss_seed.item()
@@ -582,10 +582,10 @@ class PatchTrainer(object):
                     os.path.join(sample_path, '{}_{}.png'.format(epoch, 0)))
 
                 self.writer.add_scalar('epoch/total_loss', ep_loss, epoch)
-                self.writer.add_scalar('epoch/tv_loss', ep_tv_loss, epoch)
+                # self.writer.add_scalar('epoch/tv_loss', ep_tv_loss, epoch)
                 self.writer.add_scalar('epoch/det_loss', ep_det_loss, epoch)
-                self.writer.add_scalar('epoch/ctrl_loss', ep_ctrl_loss, epoch)
-                self.writer.add_scalar('epoch/seed_loss', ep_seed_loss, epoch)
+                # self.writer.add_scalar('epoch/ctrl_loss', ep_ctrl_loss, epoch)
+                # self.writer.add_scalar('epoch/seed_loss', ep_seed_loss, epoch)
                 self.writer.add_scalar('epoch/lr', self.optimizer.param_groups[0]['lr'], epoch)
 
             # Save textures
