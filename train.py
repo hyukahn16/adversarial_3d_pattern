@@ -508,9 +508,9 @@ class PatchTrainer(object):
                     tv_loss = self.tv_loss(tex)
                     loss += tv_loss * args.tv_loss
 
-                loss_c = ctrl_loss(self.tshirt_point, self.fig_size_H, self.fig_size_W)
-                loss_c += ctrl_loss(self.trouser_point, self.fig_size_H_t, self.fig_size_W_t)
-                loss += args.ctrl * loss_c
+                # loss_c = ctrl_loss(self.tshirt_point, self.fig_size_H, self.fig_size_W)
+                # loss_c += ctrl_loss(self.trouser_point, self.fig_size_H_t, self.fig_size_W_t)
+                # loss += args.ctrl * loss_c
 
                 if args.cdist != 0:
                     loss_seed = args.cdist * reg_dist(self.seeds_tshirt_train.flatten(), sample_num=args.rd_num)
