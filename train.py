@@ -484,7 +484,7 @@ class PatchTrainer(object):
                 # AG step
                 self.optimizer.zero_grad()
                 self.optimizer_seed.zero_grad()
-                if i_batch % 20 == 0:
+                if i_batch % 10 == 0: # Used to be every 20 batches
                     self.sample_cameras()
                     self.sample_lights()
 
