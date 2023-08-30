@@ -475,6 +475,7 @@ class PatchTrainer(object):
             if args.anneal:
                 tau = np.exp(-(epoch + 1) / args.nepoch * args.anneal_alpha) * args.anneal_init
             else:
+                # Default
                 tau = 0.3
 
             for i_batch, img_batch in tqdm(enumerate(self.train_loader),
@@ -519,12 +520,12 @@ class PatchTrainer(object):
                 else:
                     loss_seed = torch.zeros([], device=self.device)
 
-                ep_mean_prob += max_prob_list.mean().item()
+                ep_mean_prob += max_prob_list.detach().mean().item()
                 # ep_ctrl_loss += loss_c.item()
-                ep_det_loss += det_loss.item()
-                ep_tv_loss += tv_loss.item()
-                ep_seed_loss += loss_seed.item()
-                ep_loss += loss.item()
+                ep_det_loss += det_loss.detach().item()
+                ep_tv_loss += tv_loss.detach().item()
+                ep_seed_loss += loss_seed.detach().item()
+                ep_loss += loss.detach().item()
                 loss.backward()
                 self.optimizer.step()
                 if args.seed_type == 'random':
