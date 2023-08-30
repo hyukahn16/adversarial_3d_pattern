@@ -509,9 +509,10 @@ class PatchTrainer(object):
                     tv_loss = self.tv_loss(tex)
                     loss += tv_loss * args.tv_loss
 
-                # loss_c = ctrl_loss(self.tshirt_point, self.fig_size_H, self.fig_size_W)
-                # loss_c += ctrl_loss(self.trouser_point, self.fig_size_H_t, self.fig_size_W_t)
+                loss_c = ctrl_loss(self.tshirt_point, self.fig_size_H, self.fig_size_W)
+                loss_c += ctrl_loss(self.trouser_point, self.fig_size_H_t, self.fig_size_W_t)
                 # loss += args.ctrl * loss_c
+                loss += 2 * loss_c
 
                 if args.cdist != 0:
                     loss_seed = args.cdist * reg_dist(self.seeds_tshirt_train.flatten(), sample_num=args.rd_num)
@@ -520,12 +521,12 @@ class PatchTrainer(object):
                 else:
                     loss_seed = torch.zeros([], device=self.device)
 
-                ep_mean_prob += max_prob_list.detach().mean().item()
+                ep_mean_prob += max_prob_list.detach().cpu().mean().item()
                 # ep_ctrl_loss += loss_c.item()
-                ep_det_loss += det_loss.detach().item()
-                ep_tv_loss += tv_loss.detach().item()
-                ep_seed_loss += loss_seed.detach().item()
-                ep_loss += loss.detach().item()
+                ep_det_loss += det_loss.detach().cpu().item()
+                ep_tv_loss += tv_loss.detach().cpu().item()
+                ep_seed_loss += loss_seed.detach().cpu().item()
+                ep_loss += loss.detach().cpu().item()
                 loss.backward()
                 self.optimizer.step()
                 if args.seed_type == 'random':
